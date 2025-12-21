@@ -177,4 +177,4 @@ Developed and maintained by the TrackMate team.
 
 ---
 
-**Last Updated:** December 20, 2024
+**Last Updated:** December 20, 2025

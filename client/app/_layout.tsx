@@ -44,7 +44,7 @@ function RootLayoutNav() {
   return (
     <>
       {!online && (
-        <View style={{ position: 'absolute', top: 0, left: 0, right: 0, backgroundColor: '#7c2d12', paddingVertical: 6, paddingHorizontal: 12, zIndex: 1000 }}>
+        <View style={{ position: 'absolute', top: 0, left: 0, right: 0, backgroundColor: '#000000', paddingVertical: 6, paddingHorizontal: 12, zIndex: 1000 }}>
           <Text style={{ color: '#fff', textAlign: 'center', fontSize: 12 }}>Offline mode: changes will sync when you&apos;re back online</Text>
         </View>
       )}

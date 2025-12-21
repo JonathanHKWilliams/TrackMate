@@ -5,6 +5,7 @@
     "scheme": "trackmate",
     "version": "1.0.0",
     "orientation": "portrait",
+    "userInterfaceStyle": "dark",
     "icon": "./assets/images/icon.png",
     "splash": {
       "image": "./assets/images/icon.png",
@@ -19,6 +20,7 @@
       "bundleIdentifier": "com.trackmate.app"
     },
     "android": {
+      "backgroundColor": "#000000",
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/icon.png",
         "backgroundColor": "#000000"
