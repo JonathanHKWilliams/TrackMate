@@ -1,0 +1,19 @@
+{
+  "extends": "expo/tsconfig.base.json",
+  "compilerOptions": {
+    "strict": true,
+    "baseUrl": ".",
+    "skipLibCheck": true,
+    "paths": {
+      "@/*": ["./client/*"]
+    }
+  },
+  "include": [
+    "client/**/*.ts",
+    "client/**/*.tsx"
+  ],
+  "exclude": [
+    "node_modules",
+    "**/node_modules/**"
+  ]
+}
