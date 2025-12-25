@@ -7,7 +7,10 @@ import { useAuth, AuthProvider } from '../contexts/AuthContext';
 import { SettingsProvider } from '../contexts/SettingsContext';
 import { ConnectivityProvider, useConnectivity } from '../contexts/ConnectivityContext';
 import { ExpenseProvider } from '../contexts/ExpenseContext';
+import { BudgetProvider } from '../contexts/BudgetContext';
+import { BudgetListProvider } from '../contexts/BudgetListContext';
 import { ThemeProvider } from '../contexts/ThemeContext';
+import { requestNotificationPermissions } from '../services/notificationService';
 
 function AuthGuard({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth();
@@ -40,6 +43,13 @@ function AuthGuard({ children }: { children: React.ReactNode }) {
 function RootLayoutNav() {
   useFrameworkReady();
   const { online } = useConnectivity();
+  const { user } = useAuth();
+
+  useEffect(() => {
+    if (user) {
+      requestNotificationPermissions();
+    }
+  }, [user]);
 
   return (
     <>
@@ -164,18 +174,22 @@ function RootLayoutNav() {
 
 export default function RootLayout() {
   return (
-    <AuthProvider>
-      <ConnectivityProvider>
+    <ConnectivityProvider>
+      <AuthProvider>
         <SettingsProvider>
           <ThemeProvider>
             <ExpenseProvider>
-              <AuthGuard>
-                <RootLayoutNav />
-              </AuthGuard>
+              <BudgetProvider>
+                <BudgetListProvider>
+                  <AuthGuard>
+                    <RootLayoutNav />
+                  </AuthGuard>
+                </BudgetListProvider>
+              </BudgetProvider>
             </ExpenseProvider>
           </ThemeProvider>
         </SettingsProvider>
-      </ConnectivityProvider>
-    </AuthProvider>
+      </AuthProvider>
+    </ConnectivityProvider>
   );
 }

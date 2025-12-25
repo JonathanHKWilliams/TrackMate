@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import {
   View,
   Text,
@@ -11,15 +11,18 @@ import {
   Modal,
   ScrollView,
 } from 'react-native';
-import { useRouter } from 'expo-router';
+import { useRouter, useFocusEffect } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useExpense } from '../../contexts/ExpenseContext';
+import { useBudget } from '../../contexts/BudgetContext';
 import { Expense } from '../../types/expense';
 import { getCurrencySymbol } from '../../constants/expenseCategories';
+import { BudgetWithSpending } from '../../types/budget';
 
 export default function ExpensesScreen() {
   const router = useRouter();
   const { expenses, categories, loading, refreshExpenses } = useExpense();
+  const { activeBudgetsWithSpending, refreshBudgets } = useBudget();
   const [refreshing, setRefreshing] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [showFilters, setShowFilters] = useState(false);
@@ -27,9 +30,16 @@ export default function ExpensesScreen() {
 
   const handleRefresh = async () => {
     setRefreshing(true);
-    await refreshExpenses();
+    await Promise.all([refreshExpenses(), refreshBudgets()]);
     setRefreshing(false);
   };
+
+  useFocusEffect(
+    useCallback(() => {
+      refreshExpenses();
+      refreshBudgets();
+    }, [])
+  );
 
   const getTotalSpending = () => {
     return expenses.reduce((sum, exp) => sum + Number(exp.amount), 0);
@@ -107,6 +117,79 @@ export default function ExpensesScreen() {
           </View>
         )}
       </TouchableOpacity>
+    );
+  };
+
+  const getProgressColor = (percentage: number) => {
+    if (percentage >= 100) return '#FF4444';
+    if (percentage >= 80) return '#FFD93D';
+    return '#4ECDC4';
+  };
+
+  const renderBudgetOverview = () => {
+    if (activeBudgetsWithSpending.length === 0) return null;
+
+    return (
+      <View style={styles.budgetOverview}>
+        <View style={styles.budgetOverviewHeader}>
+          <Text style={styles.budgetOverviewTitle}>Active Budgets</Text>
+          <TouchableOpacity onPress={() => router.push('/budget' as any)}>
+            <Text style={styles.viewAllText}>View All</Text>
+          </TouchableOpacity>
+        </View>
+        <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+          {activeBudgetsWithSpending.map((budget: BudgetWithSpending) => {
+            const progressColor = getProgressColor(budget.percentage_used);
+            return (
+              <TouchableOpacity
+                key={budget.id}
+                style={styles.budgetCard}
+                onPress={() => router.push(`/budget/${budget.id}` as any)}
+              >
+                <Text style={styles.budgetCardName} numberOfLines={1}>
+                  {budget.name}
+                </Text>
+                {budget.category_name && (
+                  <Text style={styles.budgetCardCategory} numberOfLines={1}>
+                    {budget.category_name}
+                  </Text>
+                )}
+                <View style={styles.budgetCardProgress}>
+                  <View style={styles.budgetProgressBar}>
+                    <View
+                      style={[
+                        styles.budgetProgressFill,
+                        {
+                          width: `${Math.min(budget.percentage_used, 100)}%`,
+                          backgroundColor: progressColor,
+                        },
+                      ]}
+                    />
+                  </View>
+                  <Text style={[styles.budgetCardPercentage, { color: progressColor }]}>
+                    {budget.percentage_used.toFixed(0)}%
+                  </Text>
+                </View>
+                <View style={styles.budgetCardAmounts}>
+                  <Text style={styles.budgetCardSpent}>
+                    {getCurrencySymbol('LRD')}{budget.total_spent.toFixed(0)}
+                  </Text>
+                  <Text style={styles.budgetCardTotal}>
+                    / {getCurrencySymbol('LRD')}{budget.amount.toFixed(0)}
+                  </Text>
+                </View>
+              </TouchableOpacity>
+            );
+          })}
+          <TouchableOpacity
+            style={styles.addBudgetCard}
+            onPress={() => router.push('/budget/new' as any)}
+          >
+            <Ionicons name="add-circle" size={32} color="#FF8C00" />
+            <Text style={styles.addBudgetText}>Add Budget</Text>
+          </TouchableOpacity>
+        </ScrollView>
+      </View>
     );
   };
 
@@ -232,12 +315,20 @@ export default function ExpensesScreen() {
     <View style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.title}>Expenses</Text>
-        <TouchableOpacity
-          style={styles.filterButton}
-          onPress={() => setShowFilters(true)}
-        >
-          <Ionicons name="filter" size={24} color="#FF8C00" />
-        </TouchableOpacity>
+        <View style={styles.headerButtons}>
+          <TouchableOpacity
+            style={styles.headerButton}
+            onPress={() => router.push('/budget-list' as any)}
+          >
+            <Ionicons name="list-outline" size={24} color="#FF8C00" />
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.filterButton}
+            onPress={() => setShowFilters(true)}
+          >
+            <Ionicons name="filter" size={24} color="#FF8C00" />
+          </TouchableOpacity>
+        </View>
       </View>
 
       <View style={styles.searchContainer}>
@@ -260,7 +351,12 @@ export default function ExpensesScreen() {
         data={filteredExpenses}
         renderItem={renderExpenseCard}
         keyExtractor={(item) => item.id}
-        ListHeaderComponent={renderSummaryCard}
+        ListHeaderComponent={
+          <>
+            {renderBudgetOverview()}
+            {renderSummaryCard()}
+          </>
+        }
         ListEmptyComponent={
           <View style={styles.emptyContainer}>
             <Ionicons name="wallet-outline" size={64} color="#B0B0B0" />
@@ -310,6 +406,13 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     color: '#FFF',
   },
+  headerButtons: {
+    flexDirection: 'row',
+    gap: 12,
+  },
+  headerButton: {
+    padding: 8,
+  },
   filterButton: {
     padding: 8,
   },
@@ -322,6 +425,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     borderRadius: 12,
     borderWidth: 1,
+    height: 55,
     borderColor: '#2A2A2A',
   },
   searchIcon: {
@@ -338,7 +442,7 @@ const styles = StyleSheet.create({
     paddingBottom: 100,
   },
   summaryCard: {
-    backgroundColor: '#1A1A1A',
+    backgroundColor: '#000000ff',
     borderRadius: 16,
     padding: 20,
     marginBottom: 20,
@@ -359,6 +463,8 @@ const styles = StyleSheet.create({
   analyticsButton: {
     flexDirection: 'row',
     alignItems: 'center',
+    borderBottomColor: '#FF8C00',
+    borderBottomWidth: 1,
     gap: 4,
   },
   analyticsButtonText: {
@@ -367,7 +473,7 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   totalAmount: {
-    fontSize: 36,
+    fontSize: 40,
     fontWeight: '700',
     color: '#FFF',
     marginBottom: 16,
@@ -392,14 +498,14 @@ const styles = StyleSheet.create({
   },
   statDivider: {
     width: 1,
-    backgroundColor: '#2A2A2A',
+    backgroundColor: '#1a1a1aff',
   },
   expenseCard: {
-    backgroundColor: '#1A1A1A',
-    borderRadius: 12,
+    backgroundColor: '#141414ff',
+    // borderRadius: 12,
     padding: 16,
     marginBottom: 12,
-    borderWidth: 1,
+    // borderWidth: 1,
     borderColor: '#2A2A2A',
   },
   expenseHeader: {
@@ -549,7 +655,7 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingVertical: 12,
     paddingHorizontal: 16,
-    borderRadius: 8,
+    borderRadius: 0,
     backgroundColor: '#2A2A2A',
     alignItems: 'center',
   },
@@ -573,7 +679,7 @@ const styles = StyleSheet.create({
   categoryFilterChip: {
     paddingHorizontal: 12,
     paddingVertical: 8,
-    borderRadius: 8,
+    borderRadius: 1,
   },
   categoryFilterText: {
     fontSize: 14,
@@ -590,5 +696,100 @@ const styles = StyleSheet.create({
     color: '#FFF',
     fontSize: 16,
     fontWeight: '700',
+  },
+  budgetOverview: {
+    paddingHorizontal: 16,
+    paddingVertical: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: '#2A2A2A',
+  },
+  budgetOverviewHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  budgetOverviewTitle: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: '#FFF',
+  },
+  viewAllText: {
+    fontSize: 14,
+    color: '#FF8C00',
+    fontWeight: '600',
+  },
+  budgetCard: {
+    backgroundColor: '#1A1A1A',
+    borderRadius: 12,
+    padding: 16,
+    marginRight: 12,
+    width: 200,
+    borderWidth: 1,
+    borderColor: '#2A2A2A',
+  },
+  budgetCardName: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: '#FFF',
+    marginBottom: 4,
+  },
+  budgetCardCategory: {
+    fontSize: 12,
+    color: '#B0B0B0',
+    marginBottom: 12,
+  },
+  budgetCardProgress: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    marginBottom: 8,
+  },
+  budgetProgressBar: {
+    flex: 1,
+    height: 6,
+    backgroundColor: '#2A2A2A',
+    borderRadius: 3,
+    overflow: 'hidden',
+  },
+  budgetProgressFill: {
+    height: '100%',
+    borderRadius: 3,
+  },
+  budgetCardPercentage: {
+    fontSize: 14,
+    fontWeight: '700',
+    minWidth: 40,
+    textAlign: 'right',
+  },
+  budgetCardAmounts: {
+    flexDirection: 'row',
+    alignItems: 'baseline',
+  },
+  budgetCardSpent: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: '#FFF',
+  },
+  budgetCardTotal: {
+    fontSize: 14,
+    color: '#B0B0B0',
+  },
+  addBudgetCard: {
+    backgroundColor: '#1A1A1A',
+    borderRadius: 12,
+    padding: 16,
+    width: 150,
+    borderWidth: 1,
+    borderColor: '#2A2A2A',
+    borderStyle: 'dashed',
+    justifyContent: 'center',
+    alignItems: 'center',
+    gap: 8,
+  },
+  addBudgetText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#FF8C00',
   },
 });

@@ -99,11 +99,11 @@ export default function ExpenseDetailScreen() {
     <View style={styles.container}>
       <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-          <Ionicons name="arrow-back" size={24} color="#FFF" />
+          <Ionicons name="arrow-back" size={24} color="#FF8C00" />
         </TouchableOpacity>
         <Text style={styles.title}>Expense Details</Text>
         <TouchableOpacity onPress={handleDelete} style={styles.deleteButton}>
-          <Ionicons name="trash-outline" size={24} color="#FF6B6B" />
+          <Ionicons name="trash-outline" size={26} color="#FF6B6B" />
         </TouchableOpacity>
       </View>
 
@@ -123,7 +123,7 @@ export default function ExpenseDetailScreen() {
           
           <View style={styles.detailRow}>
             <View style={styles.detailIcon}>
-              <Ionicons name="pricetag" size={20} color="#FF8C00" />
+              <Ionicons name="pricetag" size={20} color="#ffffffff" />
             </View>
             <View style={styles.detailContent}>
               <Text style={styles.detailLabel}>Title</Text>
@@ -133,7 +133,7 @@ export default function ExpenseDetailScreen() {
 
           <View style={styles.detailRow}>
             <View style={styles.detailIcon}>
-              <Ionicons name="calendar" size={20} color="#FF8C00" />
+              <Ionicons name="calendar" size={20} color="#ffffffff" />
             </View>
             <View style={styles.detailContent}>
               <Text style={styles.detailLabel}>Date</Text>
@@ -143,7 +143,7 @@ export default function ExpenseDetailScreen() {
 
           <View style={styles.detailRow}>
             <View style={styles.detailIcon}>
-              <Ionicons name="wallet" size={20} color="#FF8C00" />
+              <Ionicons name="wallet" size={20} color="#ffffffff" />
             </View>
             <View style={styles.detailContent}>
               <Text style={styles.detailLabel}>Payment Method</Text>
@@ -155,8 +155,8 @@ export default function ExpenseDetailScreen() {
 
           {expense.category && (
             <View style={styles.detailRow}>
-              <View style={styles.detailIcon}>
-                <Ionicons name="folder" size={20} color="#FF8C00" />
+                <View style={styles.detailIcon}>
+                  <Ionicons name="folder" size={20} color="#ffffffff" />
               </View>
               <View style={styles.detailContent}>
                 <Text style={styles.detailLabel}>Category</Text>
@@ -180,7 +180,7 @@ export default function ExpenseDetailScreen() {
           {expense.merchant && (
             <View style={styles.detailRow}>
               <View style={styles.detailIcon}>
-                <Ionicons name="storefront" size={20} color="#FF8C00" />
+                <Ionicons name="storefront" size={20} color="#ffffffff" />
               </View>
               <View style={styles.detailContent}>
                 <Text style={styles.detailLabel}>Merchant</Text>
@@ -192,7 +192,7 @@ export default function ExpenseDetailScreen() {
           {expense.description && (
             <View style={styles.detailRow}>
               <View style={styles.detailIcon}>
-                <Ionicons name="document-text" size={20} color="#FF8C00" />
+                <Ionicons name="document-text" size={20} color="#ffffffff" />
               </View>
               <View style={styles.detailContent}>
                 <Text style={styles.detailLabel}>Description</Text>
@@ -204,7 +204,7 @@ export default function ExpenseDetailScreen() {
           {expense.tags && expense.tags.length > 0 && (
             <View style={styles.detailRow}>
               <View style={styles.detailIcon}>
-                <Ionicons name="pricetags" size={20} color="#FF8C00" />
+                <Ionicons name="pricetags" size={20} color="#ffffffff" />
               </View>
               <View style={styles.detailContent}>
                 <Text style={styles.detailLabel}>Tags</Text>
@@ -283,12 +283,12 @@ const styles = StyleSheet.create({
   },
   amountCard: {
     backgroundColor: '#1A1A1A',
-    borderRadius: 16,
+    borderRadius: 0,
     padding: 24,
     marginTop: 20,
     marginBottom: 24,
     alignItems: 'center',
-    borderWidth: 1,
+    borderWidth: 0,
     borderColor: '#2A2A2A',
   },
   amountLabel: {
@@ -318,18 +318,18 @@ const styles = StyleSheet.create({
   },
   detailRow: {
     flexDirection: 'row',
-    backgroundColor: '#1A1A1A',
-    borderRadius: 12,
+    backgroundColor: '#000000ff',
+    borderRadius: 0,
     padding: 16,
     marginBottom: 12,
-    borderWidth: 1,
+    borderBottomWidth: 1,
     borderColor: '#2A2A2A',
   },
   detailIcon: {
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: '#FF8C00' + '20',
+    backgroundColor: '#000000ff' + '20',
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 12,

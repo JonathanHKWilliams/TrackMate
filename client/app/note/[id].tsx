@@ -8,6 +8,8 @@ import {
   ScrollView,
   Alert,
   ActivityIndicator,
+  NativeSyntheticEvent,
+  TextInputKeyPressEventData,
 } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
@@ -39,6 +41,8 @@ export default function NoteDetailScreen() {
   const contentInputRef = useRef<TextInput>(null);
   const [selectionStart, setSelectionStart] = useState(0);
   const [selectionEnd, setSelectionEnd] = useState(0);
+  const [lastEnterTime, setLastEnterTime] = useState(0);
+  const [activeFormat, setActiveFormat] = useState<'list' | 'checklist' | null>(null);
 
   useEffect(() => {
     if (!isNew && id) {
@@ -59,10 +63,7 @@ export default function NoteDetailScreen() {
         setTaskId(note.task_id);
         setIsLocked(note.is_locked || false);
         
-        // If note is locked, show unlock modal
-        if (note.is_locked && !isUnlocked) {
-          setShowUnlockModal(true);
-        }
+        // Don't auto-show unlock modal - let user trigger it by clicking lock icon or trying to edit
       }
     } catch (error) {
       console.error('Error loading note:', error);
@@ -153,31 +154,41 @@ export default function NoteDetailScreen() {
     switch (format) {
       case 'bold':
         if (selectedText) {
+          // Wrap selected text with bold markers
           newContent = beforeText + '**' + selectedText + '**' + afterText;
           newCursorPos = selectionEnd + 4;
         } else {
+          // Insert bold markers and place cursor between them
           newContent = beforeText + '****' + afterText;
           newCursorPos = selectionStart + 2;
         }
         break;
       case 'italic':
         if (selectedText) {
+          // Wrap selected text with italic markers
           newContent = beforeText + '*' + selectedText + '*' + afterText;
           newCursorPos = selectionEnd + 2;
         } else {
+          // Insert italic markers and place cursor between them
           newContent = beforeText + '**' + afterText;
           newCursorPos = selectionStart + 1;
         }
         break;
       case 'list':
-        const listItem = selectedText || 'List item';
-        newContent = beforeText + '\n• ' + listItem + afterText;
-        newCursorPos = beforeText.length + 3 + listItem.length;
+        const listItem = selectedText || '';
+        // Check if we're at the start or after a newline
+        const needsNewline = beforeText.length > 0 && !beforeText.endsWith('\n');
+        newContent = beforeText + (needsNewline ? '\n' : '') + '• ' + listItem + afterText;
+        newCursorPos = beforeText.length + (needsNewline ? 1 : 0) + 2 + listItem.length;
+        setActiveFormat('list');
         break;
       case 'checklist':
-        const checkItem = selectedText || 'Task item';
-        newContent = beforeText + '\n☐ ' + checkItem + afterText;
-        newCursorPos = beforeText.length + 3 + checkItem.length;
+        const checkItem = selectedText || '';
+        // Check if we're at the start or after a newline
+        const needsNewlineCheck = beforeText.length > 0 && !beforeText.endsWith('\n');
+        newContent = beforeText + (needsNewlineCheck ? '\n' : '') + '☐ ' + checkItem + afterText;
+        newCursorPos = beforeText.length + (needsNewlineCheck ? 1 : 0) + 2 + checkItem.length;
+        setActiveFormat('checklist');
         break;
     }
 
@@ -187,7 +198,115 @@ export default function NoteDetailScreen() {
     // Focus back to input
     setTimeout(() => {
       contentInputRef.current?.focus();
+      // Set cursor position
+      contentInputRef.current?.setNativeProps({
+        selection: { start: newCursorPos, end: newCursorPos }
+      });
     }, 100);
+  };
+
+  const handleKeyPress = (e: NativeSyntheticEvent<TextInputKeyPressEventData>) => {
+    if (e.nativeEvent.key === 'Enter') {
+      const currentTime = Date.now();
+      const timeSinceLastEnter = currentTime - lastEnterTime;
+      
+      // Get the current line
+      const beforeCursor = content.substring(0, selectionStart);
+      const lines = beforeCursor.split('\n');
+      const currentLine = lines[lines.length - 1];
+      
+      // Check if current line is a list item
+      const isListItem = currentLine.trim().startsWith('•');
+      const isChecklistItem = currentLine.trim().startsWith('☐') || currentLine.trim().startsWith('☑');
+      
+      if ((isListItem || isChecklistItem) && timeSinceLastEnter < 500) {
+        // Double Enter - exit list mode
+        e.preventDefault();
+        const beforeText = content.substring(0, selectionStart);
+        const afterText = content.substring(selectionStart);
+        
+        // Remove the empty list item and add a regular newline
+        const lastNewlineIndex = beforeText.lastIndexOf('\n');
+        const textBeforeListItem = beforeText.substring(0, lastNewlineIndex);
+        const newContent = textBeforeListItem + '\n\n' + afterText;
+        
+        setContent(newContent);
+        setActiveFormat(null);
+        
+        setTimeout(() => {
+          const newPos = textBeforeListItem.length + 2;
+          contentInputRef.current?.setNativeProps({
+            selection: { start: newPos, end: newPos }
+          });
+        }, 10);
+        
+        setLastEnterTime(0);
+        return;
+      }
+      
+      if (isListItem) {
+        // Single Enter on list item - create new list item
+        e.preventDefault();
+        const beforeText = content.substring(0, selectionStart);
+        const afterText = content.substring(selectionStart);
+        
+        // Get text after the bullet on current line
+        const bulletIndex = currentLine.indexOf('•');
+        const textAfterBullet = currentLine.substring(bulletIndex + 1).trim();
+        
+        if (textAfterBullet === '') {
+          // Empty list item - this will be caught by double-enter on next press
+          setLastEnterTime(currentTime);
+        } else {
+          const newContent = beforeText + '\n• ' + afterText;
+          setContent(newContent);
+          
+          setTimeout(() => {
+            const newPos = beforeText.length + 3;
+            contentInputRef.current?.setNativeProps({
+              selection: { start: newPos, end: newPos }
+            });
+          }, 10);
+          
+          setLastEnterTime(currentTime);
+        }
+        return;
+      }
+      
+      if (isChecklistItem) {
+        // Single Enter on checklist item - create new checklist item
+        e.preventDefault();
+        const beforeText = content.substring(0, selectionStart);
+        const afterText = content.substring(selectionStart);
+        
+        // Get text after the checkbox on current line
+        const checkboxMatch = currentLine.match(/[☐☑]/);
+        if (checkboxMatch) {
+          const checkboxIndex = currentLine.indexOf(checkboxMatch[0]);
+          const textAfterCheckbox = currentLine.substring(checkboxIndex + 1).trim();
+          
+          if (textAfterCheckbox === '') {
+            // Empty checklist item - this will be caught by double-enter on next press
+            setLastEnterTime(currentTime);
+          } else {
+            const newContent = beforeText + '\n☐ ' + afterText;
+            setContent(newContent);
+            
+            setTimeout(() => {
+              const newPos = beforeText.length + 3;
+              contentInputRef.current?.setNativeProps({
+                selection: { start: newPos, end: newPos }
+              });
+            }, 10);
+            
+            setLastEnterTime(currentTime);
+          }
+        }
+        return;
+      }
+      
+      setLastEnterTime(currentTime);
+    }
   };
 
   if (loading) {
@@ -272,24 +391,29 @@ export default function NoteDetailScreen() {
             </TouchableOpacity>
             
             {showFormatting && (
-              <View style={styles.formatOptions}>
-                <TouchableOpacity style={styles.formatOption} onPress={() => applyFormat('bold')}>
-                  <Ionicons name="text" size={18} color="#FFF" />
-                  <Text style={styles.formatOptionText}>Bold</Text>
-                </TouchableOpacity>
-                <TouchableOpacity style={styles.formatOption} onPress={() => applyFormat('italic')}>
-                  <Ionicons name="text" size={18} color="#FFF" />
-                  <Text style={styles.formatOptionText}>Italic</Text>
-                </TouchableOpacity>
-                <TouchableOpacity style={styles.formatOption} onPress={() => applyFormat('list')}>
-                  <Ionicons name="list" size={18} color="#FFF" />
-                  <Text style={styles.formatOptionText}>List</Text>
-                </TouchableOpacity>
-                <TouchableOpacity style={styles.formatOption} onPress={() => applyFormat('checklist')}>
-                  <Ionicons name="checkbox" size={18} color="#FFF" />
-                  <Text style={styles.formatOptionText}>Checklist</Text>
-                </TouchableOpacity>
-              </View>
+              <>
+                <View style={styles.formatOptions}>
+                  <TouchableOpacity style={styles.formatOption} onPress={() => applyFormat('bold')}>
+                    <Text style={[styles.formatOptionText, { fontWeight: 'bold' }]}>Bold</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity style={styles.formatOption} onPress={() => applyFormat('italic')}>
+                    <Text style={[styles.formatOptionText, { fontStyle: 'italic' }]}>Italic</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity style={[styles.formatOption, activeFormat === 'list' && styles.formatOptionActive]} onPress={() => applyFormat('list')}>
+                    <Ionicons name="list" size={18} color="#FFF" />
+                    <Text style={styles.formatOptionText}>List</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity style={[styles.formatOption, activeFormat === 'checklist' && styles.formatOptionActive]} onPress={() => applyFormat('checklist')}>
+                    <Ionicons name="checkbox" size={18} color="#FFF" />
+                    <Text style={styles.formatOptionText}>☐ Checklist</Text>
+                  </TouchableOpacity>
+                </View>
+                <Text style={styles.formatHint}>
+                  {activeFormat === 'list' ? 'Press Enter to add items, double Enter to exit' : 
+                   activeFormat === 'checklist' ? 'Press Enter to add items, double Enter to exit' :
+                   'Use **text** for bold, *text* for italic'}
+                </Text>
+              </>
             )}
           </View>
           
@@ -297,7 +421,15 @@ export default function NoteDetailScreen() {
             ref={contentInputRef}
             style={styles.contentInput}
             value={content}
-            onChangeText={setContent}
+            onChangeText={(text) => {
+              setContent(text);
+              // Check if user deleted all content or moved away from list
+              const lines = text.split('\n');
+              const hasListItems = lines.some(line => line.trim().startsWith('•') || line.trim().startsWith('☐') || line.trim().startsWith('☑'));
+              if (!hasListItems) {
+                setActiveFormat(null);
+              }
+            }}
             placeholder="Start writing your note..."
             placeholderTextColor="#666"
             multiline
@@ -307,29 +439,8 @@ export default function NoteDetailScreen() {
               setSelectionStart(event.nativeEvent.selection.start);
               setSelectionEnd(event.nativeEvent.selection.end);
             }}
+            onKeyPress={handleKeyPress}
           />
-        </View>
-
-
-        <View style={styles.infoSection}>
-          <View style={styles.infoRow}>
-            <Ionicons name="information-circle" size={16} color="#B0B0B0" />
-            <Text style={styles.infoText}>
-              {isPinned ? 'This note is pinned' : 'Pin this note to keep it at the top'}
-            </Text>
-          </View>
-          {projectId && (
-            <View style={styles.infoRow}>
-              <Ionicons name="folder" size={16} color="#FF8C00" />
-              <Text style={styles.infoText}>Attached to project</Text>
-            </View>
-          )}
-          {taskId && (
-            <View style={styles.infoRow}>
-              <Ionicons name="checkbox" size={16} color="#FF8C00" />
-              <Text style={styles.infoText}>Attached to task</Text>
-            </View>
-          )}
         </View>
 
 
@@ -458,9 +569,19 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#2A2A2A',
   },
+  formatOptionActive: {
+    backgroundColor: '#2A2A2A',
+    borderColor: '#FF8C00',
+  },
   formatOptionText: {
     fontSize: 13,
     color: '#B0B0B0',
+  },
+  formatHint: {
+    fontSize: 11,
+    color: '#666',
+    marginTop: 8,
+    fontStyle: 'italic',
   },
   content: {
     flex: 1,

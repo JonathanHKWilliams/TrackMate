@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 
@@ -62,7 +62,7 @@ export default function FAQScreen() {
     <View style={styles.container}>
       <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-          <Ionicons name="arrow-back" size={24} color="#FFF" />
+          <Ionicons name="arrow-back" size={24} color="#FF8C00" />
         </TouchableOpacity>
         <Text style={styles.title}>FAQ</Text>
         <View style={{ width: 24 }} />
@@ -70,7 +70,7 @@ export default function FAQScreen() {
 
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
         <View style={styles.banner}>
-          <Ionicons name="help-circle" size={48} color="#FF8C00" />
+          <Image source={require('../../assets/images/FAG-real.jpg')} style={styles.bannerImage} />
           <Text style={styles.bannerTitle}>Frequently Asked Questions</Text>
           <Text style={styles.bannerSubtitle}>
             Find answers to common questions
@@ -136,18 +136,23 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   banner: {
-    backgroundColor: '#1A1A1A',
-    borderRadius: 16,
-    padding: 32,
-    margin: 16,
+    // backgroundColor: '#1A1A1A',
+    // borderRadius: 16,
+    padding: 2,
+    margin: 1,
     alignItems: 'center',
-    borderWidth: 1,
-    borderColor: '#2A2A2A',
+    // borderWidth: 1,
+    // borderColor: '#2A2A2A',
+  },
+  bannerImage: {
+    width: 500,
+    height: 230,
+    borderRadius: 16,
   },
   bannerTitle: {
     fontSize: 24,
     fontWeight: '700',
-    color: '#FFF',
+    color: '#FF8C00',
     marginTop: 16,
     marginBottom: 8,
   },
@@ -155,18 +160,20 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#B0B0B0',
     textAlign: 'center',
+    marginBottom: 40,
   },
   section: {
     paddingHorizontal: 16,
     marginBottom: 32,
   },
   faqCard: {
-    backgroundColor: '#1A1A1A',
+    backgroundColor: '#000000ff',
     borderRadius: 12,
     padding: 16,
     marginBottom: 12,
     borderWidth: 1,
-    borderColor: '#2A2A2A',
+    borderBottomColor: '#2A2A2A',
+    // borderColor: '#2A2A2A',
   },
   faqHeader: {
     flexDirection: 'row',

@@ -419,13 +419,17 @@ export default function SettingsScreen() {
           </View>
           <View style={styles.divider} />
           <View style={styles.infoRow}>
-            <Text style={styles.label}>Version</Text>
+            <Text style={styles.label}>Versionn</Text>
             <Text style={styles.value}>1.0.0</Text>
           </View>
           <View style={styles.divider} />
           <View style={styles.infoRow}>
-            <Text style={styles.label}>Build</Text>
-            <Text style={styles.value}>2024.12</Text>
+            <Text style={styles.label}>Build by Liight Design Inc inc</Text>
+            <Text style={styles.value}>2025.12</Text>
+          </View>
+          <View style={styles.infoRow}>
+            <Text style={styles.label}>Devv</Text>
+            <Text style={styles.value}>williamslight91@gmail.com</Text>
           </View>
         </View>
       </View>
@@ -435,7 +439,7 @@ export default function SettingsScreen() {
       </TouchableOpacity>
 
       <Text style={styles.footer}>
-        TrackMate - Your productivity companion
+        TrackMate — your productivity companion, designed to help you plan tasks, track progress, and stay focused every day.
       </Text>
 
       <CustomAlert
@@ -479,7 +483,7 @@ export default function SettingsScreen() {
                 value={editUsername}
                 onChangeText={setEditUsername}
                 placeholder="Enter your username"
-                placeholderTextColor="#666"
+                placeholderTextColor="#ffffffff"
                 autoCapitalize="words"
                 autoFocus
               />
@@ -542,11 +546,11 @@ const styles = StyleSheet.create({
     marginTop: 16,
   },
   card: {
-    backgroundColor: '#1A1A1A',
+    backgroundColor: '#000000ff',
     borderRadius: 12,
     padding: 16,
     borderWidth: 1,
-    borderColor: '#2A2A2A',
+    borderColor: '#030303ff',
   },
   label: {
     fontSize: 14,
@@ -589,7 +593,7 @@ const styles = StyleSheet.create({
     marginVertical: 8,
   },
   signOutButton: {
-    backgroundColor: '#FF3B30',
+    backgroundColor: '#FF8C00',
     borderRadius: 8,
     padding: 16,
     alignItems: 'center',
@@ -606,7 +610,9 @@ const styles = StyleSheet.create({
     color: '#666',
     textAlign: 'center',
     marginTop: 24,
-    marginBottom: 32,
+    marginBottom: 40,
+    marginLeft: 16,
+    marginRight: 16,
   },
   optionsRow: {
     flexDirection: 'row',
@@ -623,9 +629,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 10,
     borderRadius: 8,
-    backgroundColor: '#2A2A2A',
     borderWidth: 1,
-    borderColor: '#2A2A2A',
+    borderColor: '#2f2f2fff',
+    backgroundColor: '#000000ff',
   },
   optionButtonActive: {
     backgroundColor: '#FF8C00',
@@ -677,13 +683,16 @@ const styles = StyleSheet.create({
   profileInfo: {
     flexDirection: 'row',
     alignItems: 'center',
-    flex: 1,
+    flex: 2,
+    gap: 8,
+    marginLeft: 1,
+    marginRight: 20,
   },
   profileText: {
     flex: 1,
   },
   profileName: {
-    fontSize: 18,
+    fontSize: 22,
     fontWeight: '600',
     color: '#FFF',
     marginBottom: 4,
@@ -710,7 +719,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#1A1A1A',
     borderRadius: 16,
     borderWidth: 1,
-    borderColor: '#2A2A2A',
+    borderColor: '#000000ff',
   },
   modalHeader: {
     flexDirection: 'row',
@@ -737,7 +746,6 @@ const styles = StyleSheet.create({
   modalInput: {
     backgroundColor: '#000',
     borderWidth: 1,
-    borderColor: '#2A2A2A',
     borderRadius: 8,
     padding: 12,
     fontSize: 16,
@@ -748,7 +756,7 @@ const styles = StyleSheet.create({
     padding: 16,
     gap: 12,
     borderTopWidth: 1,
-    borderTopColor: '#2A2A2A',
+    borderTopColor: '#1c1c1cff',
   },
   modalButton: {
     flex: 1,
@@ -775,6 +783,7 @@ const styles = StyleSheet.create({
     color: '#FFF',
   },
   buttonDisabled: {
-    opacity: 0.5,
+    opacity: 100,
+    borderColor: '#B0B0B0',
   },
 });

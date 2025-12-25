@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 
@@ -9,7 +9,7 @@ export default function PrivacyScreen() {
     <View style={styles.container}>
       <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-          <Ionicons name="arrow-back" size={24} color="#FFF" />
+          <Ionicons name="arrow-back" size={24} color="#FF8C00" />
         </TouchableOpacity>
         <Text style={styles.title}>Privacy Policy</Text>
         <View style={{ width: 24 }} />
@@ -17,7 +17,7 @@ export default function PrivacyScreen() {
 
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
         <View style={styles.banner}>
-          <Ionicons name="shield-checkmark" size={48} color="#4CAF50" />
+          <Image source={require('../../assets/images/Userpolicy.png')} style={styles.bannerImage} />
           <Text style={styles.bannerTitle}>Privacy Policy</Text>
           <Text style={styles.bannerSubtitle}>Last updated: December 2024</Text>
         </View>
@@ -205,24 +205,28 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   banner: {
-    backgroundColor: '#1A1A1A',
-    borderRadius: 16,
-    padding: 32,
-    margin: 16,
+    paddingTop: 1,
+    margin: 1,
+    marginBottom: 40,
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: '#2A2A2A',
+    borderColor: '#000000ff',
+  },
+  bannerImage: {
+    width: 500,
+    height: 230,
   },
   bannerTitle: {
     fontSize: 24,
     fontWeight: '700',
-    color: '#FFF',
+    color: '#FF8C00',
     marginTop: 16,
     marginBottom: 8,
   },
   bannerSubtitle: {
     fontSize: 14,
     color: '#B0B0B0',
+    marginBottom: 20,
   },
   section: {
     marginBottom: 24,
@@ -235,11 +239,11 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   card: {
-    backgroundColor: '#1A1A1A',
+    backgroundColor: '#000000ff',
     borderRadius: 12,
     padding: 16,
     borderWidth: 1,
-    borderColor: '#2A2A2A',
+    borderColor: '#000000ff',
   },
   paragraph: {
     fontSize: 14,

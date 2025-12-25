@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 
@@ -86,7 +86,7 @@ export default function HowToScreen() {
     <View style={styles.container}>
       <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-          <Ionicons name="arrow-back" size={24} color="#FFF" />
+          <Ionicons name="arrow-back" size={24} color="#FF8C00" />
         </TouchableOpacity>
         <Text style={styles.title}>How to Use</Text>
         <View style={{ width: 24 }} />
@@ -94,7 +94,7 @@ export default function HowToScreen() {
 
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
         <View style={styles.banner}>
-          <Ionicons name="book" size={48} color="#FF8C00" />
+          <Image source={require('../../assets/images/How-to-Use.jpg')} style={styles.bannerImage} />
           <Text style={styles.bannerTitle}>TrackMate Guide</Text>
           <Text style={styles.bannerSubtitle}>
             Learn how to make the most of your productivity companion
@@ -114,7 +114,7 @@ export default function HowToScreen() {
                     <View style={styles.bullet} />
                     <Text style={styles.listItemText}>{item}</Text>
                   </View>
-                  {itemIndex < section.items.length - 1 && <View style={styles.divider} />}
+                  {itemIndex < section.items.length - 1 && <View/>}
                 </View>
               ))}
             </View>
@@ -158,18 +158,22 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   banner: {
-    backgroundColor: '#1A1A1A',
-    borderRadius: 16,
-    padding: 32,
-    margin: 16,
+    paddingTop: 1,
+    margin: 1,
+    marginBottom: 40,
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: '#2A2A2A',
+    // borderColor: '#2A2A2A',
+  },
+  bannerImage: {
+    width: 500,
+    height: 230,
+    // borderRadius: 16,
   },
   bannerTitle: {
     fontSize: 24,
     fontWeight: '700',
-    color: '#FFF',
+    color: '#FF8C00',
     marginTop: 16,
     marginBottom: 8,
   },
@@ -194,10 +198,10 @@ const styles = StyleSheet.create({
     color: '#FFF',
   },
   card: {
-    backgroundColor: '#1A1A1A',
-    borderRadius: 12,
+    // backgroundColor: '#000000ff',
+    // borderRadius: 12,
     padding: 16,
-    borderWidth: 1,
+    // borderWidth: 1,
     borderColor: '#2A2A2A',
   },
   listItem: {
@@ -206,24 +210,23 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
   },
   bullet: {
-    width: 6,
-    height: 6,
-    borderRadius: 3,
-    backgroundColor: '#FF8C00',
+    // width: 6,
+    // height: 6,
+      backgroundColor: '#FF8C00',
     marginTop: 6,
     marginRight: 12,
   },
   listItemText: {
     flex: 1,
     fontSize: 15,
-    color: '#FFF',
+    color: '#8b8b8bff',
     lineHeight: 22,
   },
-  divider: {
-    height: 1,
-    backgroundColor: '#2A2A2A',
-    marginVertical: 4,
-  },
+  // divider: {
+  //   height: 1,
+  //   backgroundColor: '#2A2A2A',
+  //   marginVertical: 4,
+  // },
   footer: {
     padding: 16,
     marginBottom: 32,

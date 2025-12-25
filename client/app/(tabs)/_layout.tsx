@@ -45,12 +45,18 @@ export default function TabsLayout() {
         }}
       />
       <Tabs.Screen
-        name="expenses"
+        name="finance"
         options={{
-          title: 'Expenses',
+          title: 'Finance',
           tabBarIcon: ({ color, size }) => (
-            <Ionicons name="wallet" size={size} color={color} />
+            <Ionicons name="grid" size={size} color={color} />
           ),
+        }}
+      />
+      <Tabs.Screen
+        name="budgets"
+        options={{
+          href: null,
         }}
       />
       <Tabs.Screen
@@ -60,6 +66,12 @@ export default function TabsLayout() {
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="settings" size={size} color={color} />
           ),
+        }}
+      />
+      <Tabs.Screen
+        name="expenses"
+        options={{
+          href: null,
         }}
       />
       <Tabs.Screen

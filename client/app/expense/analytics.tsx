@@ -396,10 +396,10 @@ const styles = StyleSheet.create({
   periodButton: {
     flex: 1,
     paddingVertical: 12,
-    borderRadius: 12,
+    borderRadius: 1,
     backgroundColor: '#1A1A1A',
-    borderWidth: 1,
-    borderColor: '#2A2A2A',
+    borderWidth: 0,
+    borderColor: '#000000ff',
     alignItems: 'center',
   },
   periodButtonActive: {
@@ -415,8 +415,8 @@ const styles = StyleSheet.create({
     color: '#FFF',
   },
   summaryCard: {
-    backgroundColor: '#1A1A1A',
-    borderRadius: 16,
+    backgroundColor: '#000000ff',
+    borderRadius: 1,
     padding: 20,
     marginBottom: 20,
     borderWidth: 1,
@@ -428,7 +428,7 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   totalAmount: {
-    fontSize: 40,
+    fontSize: 50,
     fontWeight: '700',
     color: '#FFF',
     marginBottom: 8,
@@ -474,11 +474,11 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   categoryItem: {
-    backgroundColor: '#1A1A1A',
-    borderRadius: 12,
+    backgroundColor: '#767070ff',
+    borderRadius: 0,
     padding: 16,
     marginBottom: 12,
-    borderWidth: 1,
+    borderWidth: 0,
     borderColor: '#2A2A2A',
   },
   categoryHeader: {
@@ -510,7 +510,7 @@ const styles = StyleSheet.create({
   barContainer: {
     height: 8,
     backgroundColor: '#2A2A2A',
-    borderRadius: 4,
+    borderRadius: 0,
     marginBottom: 8,
     overflow: 'hidden',
   },
@@ -539,9 +539,9 @@ const styles = StyleSheet.create({
   paymentMethodCard: {
     width: (width - 56) / 2,
     backgroundColor: '#1A1A1A',
-    borderRadius: 12,
+    borderRadius: 1,
     padding: 16,
-    borderWidth: 1,
+    borderWidth: 0,
     borderColor: '#2A2A2A',
     alignItems: 'center',
   },
@@ -567,10 +567,10 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: '#1A1A1A',
-    borderRadius: 12,
+    borderRadius: 1,
     padding: 16,
     marginBottom: 12,
-    borderWidth: 1,
+    borderWidth: 0,
     borderColor: '#2A2A2A',
   },
   topExpenseRank: {
@@ -601,7 +601,7 @@ const styles = StyleSheet.create({
     color: '#B0B0B0',
   },
   topExpenseAmount: {
-    fontSize: 16,
+    fontSize: 18,
     fontWeight: '700',
     color: '#FF8C00',
   },

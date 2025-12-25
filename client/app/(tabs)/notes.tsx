@@ -1,15 +1,15 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import {
   View,
   Text,
   StyleSheet,
-  FlatList,
+  SectionList,
   TouchableOpacity,
   RefreshControl,
   ActivityIndicator,
   TextInput,
 } from 'react-native';
-import { useRouter } from 'expo-router';
+import { useRouter, useFocusEffect } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../../contexts/AuthContext';
 import { Note } from '../../types/note';
@@ -52,6 +52,42 @@ export default function NotesScreen() {
     return notes.filter(note => note.is_locked);
   };
 
+  const getDateLabel = (date: string | Date) => {
+    const now = new Date();
+    const noteDate = new Date(date);
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const yesterday = new Date(today);
+    yesterday.setDate(yesterday.getDate() - 1);
+    const noteDay = new Date(noteDate.getFullYear(), noteDate.getMonth(), noteDate.getDate());
+
+    if (noteDay.getTime() === today.getTime()) {
+      return 'Today';
+    } else if (noteDay.getTime() === yesterday.getTime()) {
+      return 'Yesterday';
+    } else if (noteDate.getFullYear() === now.getFullYear()) {
+      return noteDate.toLocaleDateString('en-US', { month: 'long' });
+    } else {
+      return noteDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+    }
+  };
+
+  const groupNotesByDate = (notesList: Note[]) => {
+    const grouped: { [key: string]: Note[] } = {};
+    
+    notesList.forEach(note => {
+      const label = getDateLabel(note.updated_at);
+      if (!grouped[label]) {
+        grouped[label] = [];
+      }
+      grouped[label].push(note);
+    });
+
+    return Object.keys(grouped).map(key => ({
+      title: key,
+      data: grouped[key],
+    }));
+  };
+
   const handleSearch = async (query: string) => {
     setSearchQuery(query);
     if (!user) return;
@@ -75,6 +111,14 @@ export default function NotesScreen() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]);
 
+  useFocusEffect(
+    useCallback(() => {
+      if (user) {
+        loadNotes();
+      }
+    }, [user])
+  );
+
   const checkPassword = async () => {
     if (!user) return;
     try {
@@ -95,7 +139,7 @@ export default function NotesScreen() {
   };
 
   const renderNote = ({ item }: { item: Note }) => {
-    const contentPreview = item.content.substring(0, 100);
+    const contentPreview = item.is_locked ? 'Note is locked. Tap to unlock.' : item.content.substring(0, 100);
 
     return (
       <TouchableOpacity
@@ -119,9 +163,16 @@ export default function NotesScreen() {
           </Text>
         </View>
 
-        <Text style={styles.noteContent} numberOfLines={3}>
-          {contentPreview}
-        </Text>
+        {!item.is_locked && (
+          <Text style={styles.noteContent} numberOfLines={3}>
+            {contentPreview}
+          </Text>
+        )}
+        {item.is_locked && (
+          <Text style={[styles.noteContent, styles.lockedContent]} numberOfLines={1}>
+            {contentPreview}
+          </Text>
+        )}
 
         {item.tags.length > 0 && (
           <View style={styles.tagsContainer}>
@@ -226,9 +277,14 @@ export default function NotesScreen() {
         </View>
       )}
 
-      <FlatList
-        data={showLockedNotes ? getLockedNotes() : getUnlockedNotes()}
+      <SectionList
+        sections={groupNotesByDate(showLockedNotes ? getLockedNotes() : getUnlockedNotes())}
         renderItem={renderNote}
+        renderSectionHeader={({ section: { title } }) => (
+          <View style={styles.sectionHeader}>
+            <Text style={styles.sectionHeaderText}>{title}</Text>
+          </View>
+        )}
         keyExtractor={(item) => item.id}
         contentContainerStyle={styles.listContent}
         ListEmptyComponent={
@@ -337,10 +393,10 @@ const styles = StyleSheet.create({
   },
   noteCard: {
     backgroundColor: '#1A1A1A',
-    borderRadius: 12,
+    borderRadius: 0,
     padding: 16,
     marginBottom: 12,
-    borderWidth: 1,
+    borderWidth: 0,
     borderColor: '#2A2A2A',
   },
   noteHeader: {
@@ -370,6 +426,10 @@ const styles = StyleSheet.create({
     color: '#B0B0B0',
     lineHeight: 20,
     marginBottom: 12,
+  },
+  lockedContent: {
+    fontStyle: 'italic',
+    color: '#808080',
   },
   tagsContainer: {
     flexDirection: 'row',
@@ -417,8 +477,8 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     paddingHorizontal: 16,
     backgroundColor: '#1A1A1A',
-    borderRadius: 12,
-    borderWidth: 1,
+    borderRadius: 1,
+    borderWidth: 0,
     borderColor: '#2A2A2A',
   },
   tabActive: {
@@ -428,19 +488,19 @@ const styles = StyleSheet.create({
   tabText: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#B0B0B0',
+    color: '#ffffffff',
   },
   tabTextActive: {
     color: '#FF8C00',
   },
   passwordPrompt: {
     backgroundColor: '#1A1A1A',
-    borderRadius: 16,
+    borderRadius: 1,
     padding: 32,
     marginHorizontal: 16,
     marginBottom: 16,
     alignItems: 'center',
-    borderWidth: 1,
+    borderWidth: 0,
     borderColor: '#2A2A2A',
   },
   passwordPromptTitle: {
@@ -468,8 +528,22 @@ const styles = StyleSheet.create({
     borderRadius: 12,
   },
   setPasswordButtonText: {
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: '600',
     color: '#FFF',
+  },
+  sectionHeader: {
+    backgroundColor: '#000',
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    borderBottomWidth: 0,
+    borderBottomColor: '#2A2A2A',
+  },
+  sectionHeaderText: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: '#FF8C00',
+    textTransform: 'uppercase',
+    letterSpacing: 1,
   },
 });

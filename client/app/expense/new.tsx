@@ -89,7 +89,7 @@ export default function NewExpenseScreen() {
     <View style={styles.container}>
       <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-          <Ionicons name="arrow-back" size={24} color="#FFF" />
+          <Ionicons name="arrow-back" size={24} color="#FF8C00" />
         </TouchableOpacity>
         <Text style={styles.title}>Add Expense</Text>
         <View style={{ width: 24 }} />
@@ -268,40 +268,7 @@ export default function NewExpenseScreen() {
           />
         </View>
 
-        <View style={styles.section}>
-          <Text style={styles.label}>Tags (Optional)</Text>
-          <View style={styles.tagsContainer}>
-            {tags.length === 0 ? (
-              <Text style={styles.noTagsText}>No tags available</Text>
-            ) : (
-              tags.map((tag) => (
-                <TouchableOpacity
-                  key={tag.id}
-                  style={[
-                    styles.tagChip,
-                    { backgroundColor: tag.color + '20' },
-                    selectedTagIds.includes(tag.id) && {
-                      backgroundColor: tag.color,
-                    },
-                  ]}
-                  onPress={() => toggleTag(tag.id)}
-                >
-                  <Text
-                    style={[
-                      styles.tagChipText,
-                      { color: tag.color },
-                      selectedTagIds.includes(tag.id) && { color: '#FFF' },
-                    ]}
-                  >
-                    {tag.name}
-                  </Text>
-                </TouchableOpacity>
-              ))
-            )}
-          </View>
-        </View>
-
-        <View style={{ height: 100 }} />
+      <View style={{ height: 100 }} />
       </ScrollView>
 
       <View style={styles.footer}>
@@ -327,7 +294,7 @@ export default function NewExpenseScreen() {
             <View style={styles.modalHeader}>
               <Text style={styles.modalTitle}>Select Currency</Text>
               <TouchableOpacity onPress={() => setShowCurrencyPicker(false)}>
-                <Ionicons name="close" size={24} color="#FFF" />
+                <Ionicons name="close" size={24} color="#000000ff" />
               </TouchableOpacity>
             </View>
             <ScrollView>
@@ -393,7 +360,7 @@ const styles = StyleSheet.create({
   },
   input: {
     backgroundColor: '#1A1A1A',
-    borderWidth: 1,
+    borderWidth: 0,
     borderColor: '#2A2A2A',
     borderRadius: 12,
     padding: 16,
@@ -408,7 +375,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: '#1A1A1A',
-    borderWidth: 1,
+    borderWidth: 0,
     borderColor: '#2A2A2A',
     borderRadius: 12,
     paddingHorizontal: 16,
@@ -417,7 +384,7 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: '700',
     color: '#FF8C00',
-    marginRight: 8,
+    marginRight: 4,
   },
   amountInput: {
     flex: 1,
@@ -426,13 +393,14 @@ const styles = StyleSheet.create({
     color: '#FFF',
     paddingVertical: 16,
     minHeight: 60,
-    minWidth: 80,
+    minWidth: 100,
+    textAlign: 'right',
   },
   dateButton: {
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: '#1A1A1A',
-    borderWidth: 1,
+    borderWidth: 0,
     borderColor: '#2A2A2A',
     borderRadius: 12,
     padding: 16,

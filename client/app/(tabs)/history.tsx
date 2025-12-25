@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import {
   View,
   Text,
@@ -8,7 +8,7 @@ import {
   RefreshControl,
   ActivityIndicator,
 } from 'react-native';
-import { useRouter } from 'expo-router';
+import { useRouter, useFocusEffect } from 'expo-router';
 import { useAuth } from '../../contexts/AuthContext';
 import { Task } from '../../types/task';
 import { getTasksByStatus, getSharedTasks, uncompleteTask } from '../../services/taskService';
@@ -42,6 +42,14 @@ export default function HistoryScreen() {
     loadTasks();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]);
+
+  useFocusEffect(
+    useCallback(() => {
+      if (user) {
+        loadTasks();
+      }
+    }, [user])
+  );
 
   const handleUncomplete = async (taskId: string) => {
     try {

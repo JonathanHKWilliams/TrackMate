@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import {
   View,
   Text,
@@ -8,7 +8,7 @@ import {
   RefreshControl,
   ActivityIndicator,
 } from 'react-native';
-import { useRouter } from 'expo-router';
+import { useRouter, useFocusEffect } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../../contexts/AuthContext';
 import { Project, PROJECT_STATUS_OPTIONS, normalizeProjectIcon } from '../../types/project';
@@ -39,6 +39,14 @@ export default function ProjectsScreen() {
     loadProjects();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]);
+
+  useFocusEffect(
+    useCallback(() => {
+      if (user) {
+        loadProjects();
+      }
+    }, [user])
+  );
 
   const filteredProjects = projects.filter(p => {
     if (filter === 'all') return p.status !== 'archived';
@@ -205,9 +213,9 @@ const styles = StyleSheet.create({
   filterButton: {
     paddingHorizontal: 16,
     paddingVertical: 8,
-    borderRadius: 16,
+    borderRadius: 8,
     backgroundColor: '#1A1A1A',
-    borderWidth: 1,
+    borderWidth: 0,
     borderColor: '#2A2A2A',
   },
   filterButtonActive: {
@@ -234,10 +242,10 @@ const styles = StyleSheet.create({
   },
   projectCard: {
     backgroundColor: '#1A1A1A',
-    borderRadius: 12,
+    borderRadius: 1,
     padding: 16,
     marginBottom: 16,
-    borderWidth: 1,
+    borderWidth: 0,
     borderColor: '#2A2A2A',
   },
   projectHeader: {

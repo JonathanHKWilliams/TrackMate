@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { Session, User } from '@supabase/supabase-js';
 import { supabase } from '../lib/supabase';
+import * as Linking from 'expo-linking';
 
 type AuthContextType = {
   user: User | null;
@@ -25,6 +26,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    // Initialize session from storage
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+      setUser(session?.user ?? null);
+      setLoading(false);
+    });
+
     // Check active sessions and set the user
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
@@ -34,8 +42,31 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
     );
 
+    // Handle deep links for email confirmation
+    const handleDeepLink = async (url: string) => {
+      const { queryParams } = Linking.parse(url);
+      
+      if (queryParams?.access_token && queryParams?.refresh_token) {
+        await supabase.auth.setSession({
+          access_token: queryParams.access_token as string,
+          refresh_token: queryParams.refresh_token as string,
+        });
+      }
+    };
+
+    // Listen for deep links
+    const subscription2 = Linking.addEventListener('url', ({ url }) => {
+      handleDeepLink(url);
+    });
+
+    // Check if app was opened via deep link
+    Linking.getInitialURL().then((url) => {
+      if (url) handleDeepLink(url);
+    });
+
     return () => {
       subscription.unsubscribe();
+      subscription2.remove();
     };
   }, []);
 
@@ -51,26 +82,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
+      options: {
+        emailRedirectTo: 'trackmate://',
+      },
     });
     
-    if (!error && data.user) {
-      try {
-        const { error: profileError } = await supabase.from('profiles').insert({
-          user_id: data.user.id,
-          email: data.user.email,
-        });
-        
-        const { error: settingsError } = await supabase.from('user_settings').insert({
-          user_id: data.user.id,
-        });
-        
-        if (profileError) console.log('Profile creation:', profileError.message);
-        if (settingsError) console.log('Settings creation:', settingsError.message);
-      } catch (profileError: any) {
-        console.log('Profile/settings creation error:', profileError?.message || 'Unknown error');
-      }
-    }
-    
+    // Profile and settings are auto-created by database trigger
     return { error, data };
   };
 

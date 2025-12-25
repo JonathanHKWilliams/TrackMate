@@ -25,7 +25,8 @@
         "foregroundImage": "./assets/images/icon.png",
         "backgroundColor": "#000000"
       },
-      "package": "com.trackmate.app"
+      "package": "com.trackmate.app",
+      "jsEngine": "hermes"
     },
     "web": {
       "bundler": "metro",

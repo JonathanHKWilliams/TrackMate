@@ -80,7 +80,7 @@ export default function TaskDetailScreen() {
 
   const handleSave = async () => {
     if (!title.trim()) {
-      Alert.alert('Error', 'Please enter a task title');
+      Alert.alert('No Title', 'Please enter a task title');
       return;
     }
 
@@ -468,7 +468,7 @@ const styles = StyleSheet.create({
   },
   input: {
     backgroundColor: '#1A1A1A',
-    borderWidth: 1,
+    borderWidth: 0,
     borderColor: '#2A2A2A',
     borderRadius: 8,
     padding: 12,
@@ -486,7 +486,7 @@ const styles = StyleSheet.create({
   },
   dateButton: {
     backgroundColor: '#1A1A1A',
-    borderWidth: 1,
+    borderWidth: 0,
     borderColor: '#2A2A2A',
     borderRadius: 8,
     padding: 12,
@@ -509,7 +509,7 @@ const styles = StyleSheet.create({
   tagInput: {
     flex: 1,
     backgroundColor: '#1A1A1A',
-    borderWidth: 1,
+    borderWidth: 0,
     borderColor: '#2A2A2A',
     borderRadius: 8,
     padding: 12,
@@ -519,7 +519,7 @@ const styles = StyleSheet.create({
   addTagButton: {
     backgroundColor: '#FF8C00',
     borderRadius: 8,
-    paddingHorizontal: 16,
+    paddingHorizontal: 24,
     justifyContent: 'center',
   },
   addTagButtonText: {
@@ -531,13 +531,13 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     flexWrap: 'wrap',
     gap: 8,
-    marginTop: 8,
+    marginTop: 14,
   },
   tag: {
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: '#2A2A2A',
-    paddingHorizontal: 12,
+    paddingHorizontal: 10,
     paddingVertical: 6,
     borderRadius: 16,
     gap: 6,
@@ -563,10 +563,10 @@ const styles = StyleSheet.create({
   optionButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#1A1A1A',
+    backgroundColor: '#000000ff',
     borderWidth: 1,
     borderColor: '#2A2A2A',
-    borderRadius: 8,
+    borderRadius: 2,
     paddingHorizontal: 12,
     paddingVertical: 8,
   },
@@ -586,7 +586,7 @@ const styles = StyleSheet.create({
     width: 8,
     height: 8,
     borderRadius: 4,
-    marginRight: 6,
+    marginRight: 8,
   },
   deleteButton: {
     flexDirection: 'row',

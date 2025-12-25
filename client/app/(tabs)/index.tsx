@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import {
   View,
   Text,
@@ -7,15 +7,20 @@ import {
   TouchableOpacity,
   RefreshControl,
   ActivityIndicator,
+  Image,
+  Animated,
 } from 'react-native';
-import { useRouter } from 'expo-router';
+import { useRouter, useFocusEffect } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../../contexts/AuthContext';
+import { useSettings } from '../../contexts/SettingsContext';
 import { Task } from '../../types/task';
 import { getTasksByStatus, getTaskDisplayStatus, completeTask } from '../../services/taskService';
+import { playTaskCompleteSound } from '../../utils/soundUtils';
 
 export default function DashboardScreen() {
   const { user } = useAuth();
+  const { settings } = useSettings();
   const router = useRouter();
   const [tasks, setTasks] = useState<{
     today: Task[];
@@ -23,6 +28,7 @@ export default function DashboardScreen() {
   }>({ today: [], upcoming: [] });
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const pulseAnim = useRef(new Animated.Value(1)).current;
 
   const loadTasks = async () => {
     if (!user) return;
@@ -42,9 +48,37 @@ export default function DashboardScreen() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]);
 
+  useFocusEffect(
+    useCallback(() => {
+      if (user) {
+        loadTasks();
+      }
+    }, [user])
+  );
+
+  useEffect(() => {
+    const pulse = Animated.loop(
+      Animated.sequence([
+        Animated.timing(pulseAnim, {
+          toValue: 1.05,
+          duration: 1000,
+          useNativeDriver: true,
+        }),
+        Animated.timing(pulseAnim, {
+          toValue: 1,
+          duration: 1000,
+          useNativeDriver: true,
+        }),
+      ])
+    );
+    pulse.start();
+    return () => pulse.stop();
+  }, [pulseAnim]);
+
   const handleCompleteTask = async (taskId: string) => {
     try {
       await completeTask(taskId);
+      await playTaskCompleteSound(settings?.sound_enabled ?? true);
       await loadTasks();
     } catch (error) {
       console.error('Error completing task:', error);
@@ -116,7 +150,7 @@ export default function DashboardScreen() {
     if (totalTasks === 0) {
       return (
         <View style={styles.banner}>
-          <Ionicons name="checkmark-circle" size={48} color="#4CAF50" />
+          <Image source={require('../../assets/images/Task.jpg')} style={styles.bannerImage} />
           <Text style={styles.bannerTitle}>All Caught Up!</Text>
           <Text style={styles.bannerSubtitle}>You have no pending tasks</Text>
         </View>
@@ -125,17 +159,17 @@ export default function DashboardScreen() {
 
     if (todayCount > 0) {
       return (
-        <View style={[styles.banner, styles.bannerActive]}>
-          <Ionicons name="today" size={48} color="#FF8C00" />
+        <Animated.View style={[styles.banner, styles.bannerActive, { transform: [{ scale: pulseAnim }] }]}>
+          <Image source={require('../../assets/images/Task.jpg')} style={styles.bannerImage} />
           <Text style={styles.bannerTitle}>{todayCount} Task{todayCount > 1 ? 's' : ''} Due Today</Text>
           <Text style={styles.bannerSubtitle}>Stay focused and get them done</Text>
-        </View>
+        </Animated.View>
       );
     }
 
     return (
       <View style={styles.banner}>
-        <Ionicons name="calendar-outline" size={48} color="#FF8C00" />
+        <Image source={require('../../assets/images/Task.jpg')} style={styles.bannerImage} />
         <Text style={styles.bannerTitle}>{totalTasks} Upcoming Task{totalTasks > 1 ? 's' : ''}</Text>
         <Text style={styles.bannerSubtitle}>Plan ahead and stay organized</Text>
       </View>
@@ -232,24 +266,27 @@ const styles = StyleSheet.create({
     color: '#FFF',
   },
   banner: {
-    backgroundColor: '#1A1A1A',
-    borderRadius: 16,
-    padding: 24,
+    paddingTop: 1,
+    margin: 1,
     marginHorizontal: 16,
     marginTop: 16,
     marginBottom: 24,
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: '#2A2A2A',
+    borderColor: '#000000ff',
   },
   bannerActive: {
-    borderColor: '#FF8C00',
+    borderColor: '#000000',
     borderWidth: 2,
+  },
+  bannerImage: {
+    width: 500,
+    height: 200,
   },
   bannerTitle: {
     fontSize: 20,
     fontWeight: '700',
-    color: '#FFF',
+    color: '#FF8C00',
     marginTop: 12,
     marginBottom: 4,
   },
@@ -257,6 +294,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#B0B0B0',
     textAlign: 'center',
+    marginBottom: 20,
   },
   section: {
     marginBottom: 24,
@@ -296,15 +334,15 @@ const styles = StyleSheet.create({
   },
   taskCard: {
     backgroundColor: '#1A1A1A',
-    borderRadius: 12,
+    borderRadius: 1,
     padding: 16,
     marginBottom: 12,
     borderWidth: 1,
     borderColor: '#2A2A2A',
   },
   taskCardOverdue: {
-    borderColor: '#FF8C00',
-    borderWidth: 2,
+    // borderColor: '#FF8C00',
+    // borderWidth: 1,
   },
   taskHeader: {
     flexDirection: 'row',

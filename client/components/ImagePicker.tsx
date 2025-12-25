@@ -7,10 +7,11 @@ interface ImagePickerProps {
   currentImage?: string | null;
   onImageSelected: (uri: string) => void;
   size?: number;
+  disabled?: boolean;
 }
 
-export default function ImagePicker({ currentImage, onImageSelected, size = 100 }: ImagePickerProps) {
-  const [loading] = useState(false);
+export default function ImagePicker({ currentImage, onImageSelected, size = 100, disabled = false }: ImagePickerProps) {
+  const [loading, setLoading] = useState(false);
 
   const pickImage = async () => {
     try {
@@ -77,14 +78,12 @@ export default function ImagePicker({ currentImage, onImageSelected, size = 100 
     <TouchableOpacity 
       style={[styles.container, { width: size, height: size, borderRadius: size / 2 }]}
       onPress={showOptions}
-      disabled={loading}
+      disabled={loading || disabled}
     >
       {currentImage ? (
         <Image source={{ uri: currentImage }} style={styles.image} />
       ) : (
-        <View style={styles.placeholder}>
-          <Ionicons name="person" size={size * 0.5} color="#FF8C00" />
-        </View>
+        <Image source={require('../assets/images/User-image.png')} style={styles.image} />
       )}
       
       <View style={styles.editBadge}>

@@ -3,12 +3,12 @@ import { SchedulableTriggerInputTypes } from 'expo-notifications';
 import { Task } from '../types/task';
 import { Project } from '../types/project';
 
-// Configure notification handler to use default system sound
+// Configure notification handler with custom settings
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
     shouldShowAlert: true,
     shouldPlaySound: true,
-    shouldSetBadge: false,
+    shouldSetBadge: true,
     shouldShowBanner: true,
     shouldShowList: true,
   }),
@@ -47,14 +47,26 @@ export const scheduleTaskReminder = async (task: Task) => {
   const dueDate = new Date(task.due_at);
   const reminderTime = new Date(dueDate.getTime() - task.reminder_offset_minutes * 60000);
   
+  // Format due time
+  const dueTimeStr = dueDate.toLocaleString('en-US', {
+    month: 'short',
+    day: 'numeric',
+    hour: 'numeric',
+    minute: '2-digit',
+  });
+  
+  // Priority emoji
+  const priorityEmoji = task.priority === 'high' ? '🔴' : task.priority === 'medium' ? '🟡' : '🟢';
+  
   // Only schedule if reminder is in the future
   if (reminderTime > new Date()) {
     await Notifications.scheduleNotificationAsync({
       content: {
-        title: '⏰ Task Reminder',
-        body: `"${task.title}" is due soon!`,
-        data: { taskId: task.id, type: 'task' },
-        sound: true, // Uses default system notification sound
+        title: `${priorityEmoji} TrackMate: Task Due Soon`,
+        body: `"${task.title}"\nDue: ${dueTimeStr}`,
+        data: { taskId: task.id, type: 'task', priority: task.priority },
+        sound: true,
+        badge: 1,
       },
       trigger: {
         type: SchedulableTriggerInputTypes.DATE,

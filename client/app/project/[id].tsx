@@ -63,7 +63,7 @@ export default function ProjectDetailScreen() {
 
   const handleSave = async () => {
     if (!user || !name.trim()) {
-      Alert.alert('Error', 'Project name is required');
+      Alert.alert('Add Project Name', 'This field is required before saving');
       return;
     }
 
@@ -143,14 +143,21 @@ export default function ProjectDetailScreen() {
     <View style={styles.container}>
       <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-          <Ionicons name="arrow-back" size={24} color="#FFF" />
+          <Ionicons name="arrow-back" size={24} color="#FF8C00" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>{isNew ? 'New Project' : 'Edit Project'}</Text>
-        <TouchableOpacity onPress={handleSave} disabled={saving}>
-          <Text style={[styles.saveButton, saving && styles.saveButtonDisabled]}>
-            {saving ? 'Saving...' : 'Save'}
-          </Text>
-        </TouchableOpacity>
+        <View style={styles.headerActions}>
+          {!isNew && (
+            <TouchableOpacity onPress={handleDelete} style={styles.deleteIconButton}>
+              <Ionicons name="trash-outline" size={24} color="#FF4444" />
+            </TouchableOpacity>
+          )}
+          <TouchableOpacity onPress={handleSave} disabled={saving}>
+            <Text style={[styles.saveButton, saving && styles.saveButtonDisabled]}>
+              {saving ? 'Saving...' : 'Save'}
+            </Text>
+          </TouchableOpacity>
+        </View>
       </View>
 
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
@@ -274,13 +281,6 @@ export default function ProjectDetailScreen() {
           )}
         </View>
 
-        {!isNew && (
-          <TouchableOpacity style={styles.deleteButton} onPress={handleDelete}>
-            <Ionicons name="trash-outline" size={18} color="#FF4444" />
-            <Text style={styles.deleteButtonText}>Delete Project</Text>
-          </TouchableOpacity>
-        )}
-
         <View style={{ height: 40 }} />
       </ScrollView>
     </View>
@@ -316,8 +316,16 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: '#FFF',
   },
+  headerActions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 16,
+  },
+  deleteIconButton: {
+    padding: 4,
+  },
   saveButton: {
-    fontSize: 16,
+    fontSize: 22,
     fontWeight: '600',
     color: '#FF8C00',
   },
@@ -339,7 +347,7 @@ const styles = StyleSheet.create({
   },
   input: {
     backgroundColor: '#1A1A1A',
-    borderWidth: 1,
+    borderWidth: 0,
     borderColor: '#2A2A2A',
     borderRadius: 8,
     padding: 12,
@@ -359,7 +367,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 10,
     borderRadius: 8,
-    backgroundColor: '#1A1A1A',
+    backgroundColor: '#000000ff',
     borderWidth: 1,
     borderColor: '#2A2A2A',
   },
@@ -397,14 +405,14 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: '#1A1A1A',
-    borderWidth: 1,
+    borderWidth: 0,
     borderColor: '#2A2A2A',
   },
   dateButton: {
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: '#1A1A1A',
-    borderWidth: 1,
+    borderWidth: 0,
     borderColor: '#2A2A2A',
     borderRadius: 8,
     padding: 12,
@@ -414,22 +422,5 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: 16,
     color: '#FFF',
-  },
-  deleteButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: 'transparent',
-    borderWidth: 1,
-    borderColor: '#FF4444',
-    borderRadius: 8,
-    padding: 12,
-    gap: 8,
-    marginTop: 32,
-  },
-  deleteButtonText: {
-    fontSize: 14,
-    fontWeight: '500',
-    color: '#FF4444',
   },
 });

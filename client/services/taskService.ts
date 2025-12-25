@@ -3,6 +3,7 @@ import { Task, TaskInput, TaskStatus, TaskDisplayStatus } from '../types/task';
 import { getCache, setCache, CacheKeys } from '../lib/cache';
 import { isOnline, isNetworkError } from '../lib/network';
 import { optimisticInsert, optimisticUpdate, optimisticDelete } from '../lib/offlineQueue';
+import { scheduleTaskReminder, cancelTaskNotifications } from './notificationService';
 
 async function getCurrentUserId(): Promise<string | null> {
   const { data } = await supabase.auth.getUser();
@@ -131,6 +132,12 @@ export const createTask = async (userId: string, taskInput: TaskInput): Promise<
   const cacheKey = CacheKeys.tasks(userId);
   const list = (await getCache<Task[]>(cacheKey)) || [];
   await setCache(cacheKey, [data, ...list]);
+  
+  // Schedule notification if task has a reminder
+  if (data.reminder_offset_minutes > 0) {
+    await scheduleTaskReminder(data);
+  }
+  
   return data;
 };
 
@@ -160,6 +167,13 @@ export const updateTask = async (
   const list = (await getCache<Task[]>(cacheKey)) || [];
   const updatedList = list.map((t) => (t.id === taskId ? { ...t, ...data } : t));
   await setCache(cacheKey, updatedList);
+  
+  // Cancel old notifications and schedule new ones if needed
+  await cancelTaskNotifications(taskId);
+  if (data.reminder_offset_minutes > 0 && data.status !== 'completed') {
+    await scheduleTaskReminder(data);
+  }
+  
   return data;
 };
 
@@ -172,6 +186,9 @@ export const uncompleteTask = async (taskId: string): Promise<Task> => {
 };
 
 export const deleteTask = async (taskId: string): Promise<void> => {
+  // Cancel any scheduled notifications for this task
+  await cancelTaskNotifications(taskId);
+  
   const userId = await getCurrentUserId();
   if (!userId) throw new Error('Not authenticated');
   if (!isOnline()) {

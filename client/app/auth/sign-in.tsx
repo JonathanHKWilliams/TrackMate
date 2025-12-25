@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
 import { Stack, useRouter } from 'expo-router';
 import { useAuth } from '../../contexts/AuthContext';
-import { createUserProfile, uploadAvatar } from '../../services/userProfileService';
+import { updateUserProfile, uploadAvatar } from '../../services/userProfileService';
 import { Ionicons } from '@expo/vector-icons';
 import ImagePicker from '../../components/ImagePicker';
 import CustomAlert from '../../components/CustomAlert';
@@ -36,40 +36,35 @@ export default function SignInScreen() {
         const { data, error } = await signUp(email, password);
         if (error) throw error;
         
-        // Create user profile with username and avatar
-        if (data?.user) {
+        // Profile and settings are auto-created by database trigger
+        // Now update profile with username and avatar if provided
+        if (data?.user && data.session) {
           try {
             let avatarUrl = null;
             
-            // Upload avatar if selected (skip if fails)
+            // Upload avatar if selected
             if (avatarUri) {
               try {
                 avatarUrl = await uploadAvatar(data.user.id, avatarUri);
               } catch (uploadError) {
                 console.error('Error uploading avatar:', uploadError);
-                // Continue without avatar - user can add it later in settings
               }
             }
             
-            // Create profile (this must succeed)
-            await createUserProfile(data.user.id, {
-              full_name: username.trim(),
-              avatar_url: avatarUrl || undefined,
-            });
+            // Update profile with username and avatar
+            if (username.trim() || avatarUrl) {
+              await updateUserProfile(data.user.id, {
+                full_name: username.trim() || undefined,
+                avatar_url: avatarUrl || undefined,
+              });
+            }
           } catch (profileError) {
-            console.error('Error creating profile:', profileError);
-            // Show error but don't block signup
-            setAlert({ 
-              visible: true, 
-              title: 'Profile Error', 
-              message: 'Account created but profile setup failed. Please update your profile in Settings.', 
-              type: 'warning' 
-            });
-            return;
+            console.error('Error updating profile:', profileError);
+            // Don't block signup for profile update failures
           }
         }
         
-        setAlert({ visible: true, title: 'Success', message: 'Account created successfully! Please sign in.', type: 'success' });
+        setAlert({ visible: true, title: 'Success', message: 'Account created successfully! Please check your email to verify your account.', type: 'success' });
         setIsSignUp(false);
         setUsername('');
         setAvatarUri(null);
