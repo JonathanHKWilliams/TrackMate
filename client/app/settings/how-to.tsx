@@ -94,7 +94,7 @@ export default function HowToScreen() {
 
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
         <View style={styles.banner}>
-          <Image source={require('../../assets/images/Howtouse.jpg')} style={styles.bannerImage} />
+          <Image source={require('../../assets/images/howtouse.jpg')} style={styles.bannerImage} />
           <Text style={styles.bannerTitle}>TrackMate Guide</Text>
           <Text style={styles.bannerSubtitle}>
             Learn how to make the most of your productivity companion

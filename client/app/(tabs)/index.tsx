@@ -150,7 +150,7 @@ export default function DashboardScreen() {
     if (totalTasks === 0) {
       return (
         <View style={styles.banner}>
-          <Image source={require('../../assets/images/Taskk.jpg')} style={styles.bannerImage} />
+          <Image source={require('../../assets/images/taskk.jpg')} style={styles.bannerImage} />
           <Text style={styles.bannerTitle}>All Caught Up!</Text>
           <Text style={styles.bannerSubtitle}>You have no pending tasks tasks</Text>
         </View>
@@ -160,16 +160,16 @@ export default function DashboardScreen() {
     if (todayCount > 0) {
       return (
         <Animated.View style={[styles.banner, styles.bannerActive, { transform: [{ scale: pulseAnim }] }]}>
-          <Image source={require('../../assets/images/Taskk.jpg')} style={styles.bannerImage} />
+          <Image source={require('../../assets/images/taskk.jpg')} style={styles.bannerImage} />
           <Text style={styles.bannerTitle}>{todayCount} Task{todayCount > 1 ? 's' : ''} Due Today</Text>
-          <Text style={styles.bannerSubtitle}>Stay focused and get them done</Text>
+          <Text style={styles.bannerSubtitle}>Stay focused and get them done done</Text>
         </Animated.View>
       );
     }
 
     return (
       <View style={styles.banner}>
-        <Image source={require('../../assets/images/Taskk.jpg')} style={styles.bannerImage} />
+        <Image source={require('../../assets/images/taskk.jpg')} style={styles.bannerImage} />
         <Text style={styles.bannerTitle}>{totalTasks} Upcoming Task{totalTasks > 1 ? 's' : ''}</Text>
         <Text style={styles.bannerSubtitle}>Plan ahead and stay organized</Text>
       </View>

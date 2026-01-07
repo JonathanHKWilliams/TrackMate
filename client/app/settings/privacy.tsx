@@ -17,7 +17,7 @@ export default function PrivacyScreen() {
 
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
         <View style={styles.banner}>
-          <Image source={require('../../assets/images/userpolicy.png')} style={styles.bannerImage} />
+          <Image source={require('../../assets/images/userpolicy.jpg')} style={styles.bannerImage} />
           <Text style={styles.bannerTitle}>Privacy Policy</Text>
           <Text style={styles.bannerSubtitle}>Last updated: December 2024</Text>
         </View>
