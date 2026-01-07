@@ -17,7 +17,7 @@ export default function DocumentationScreen() {
 
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
         <View style={styles.banner}>
-          <Image source={require('../../assets/images/Documents.png')} style={styles.bannerImage} />
+          <Image source={require('../../assets/images/documents.png')} style={styles.bannerImage} />
           <Text style={styles.bannerTitle}>TrackMate Documentation</Text>
           <Text style={styles.bannerSubtitle}>
             Complete guide to all features and functionality

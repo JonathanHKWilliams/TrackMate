@@ -17,7 +17,7 @@ export default function TermsScreen() {
 
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
         <View style={styles.banner}>
-          <Image source={require('../../assets/images/Terms.png')} style={styles.bannerImage} />
+          <Image source={require('../../assets/images/terms.png')} style={styles.bannerImage} />
           <Text style={styles.bannerTitle}>Terms of Service</Text>
           <Text style={styles.bannerSubtitle}>Last updated: December 2025 2025</Text>
         </View>
