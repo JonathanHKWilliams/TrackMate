@@ -70,7 +70,7 @@ export default function FAQScreen() {
 
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
         <View style={styles.banner}>
-          <Image source={require('../../assets/images/FAG_real.jpg')} style={styles.bannerImage} />
+          <Image source={require('../../assets/images/FAQreal.jpg')} style={styles.bannerImage} />
           <Text style={styles.bannerTitle}>Frequently Asked Questions</Text>
           <Text style={styles.bannerSubtitle}>
             Find answers to common questions
