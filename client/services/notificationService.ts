@@ -62,7 +62,7 @@ export const scheduleTaskReminder = async (task: Task) => {
   if (reminderTime > new Date()) {
     await Notifications.scheduleNotificationAsync({
       content: {
-        title: `${priorityEmoji} TrackMate: Task Due Soon`,
+        title: `${priorityEmoji} TrackMate: You Have a Task Due Soon`,
         body: `"${task.title}"\nDue: ${dueTimeStr}`,
         data: { taskId: task.id, type: 'task', priority: task.priority },
         sound: true,
@@ -87,8 +87,8 @@ export const scheduleProjectDeadline = async (project: Project) => {
   if (reminderTime > new Date()) {
     await Notifications.scheduleNotificationAsync({
       content: {
-        title: '📅 Project Deadline',
-        body: `"${project.name}" deadline is tomorrow!`,
+        title: ' Project Deadline',
+        body: `"${project.name}"Your Project deadline is tomorrow!`,
         data: { projectId: project.id, type: 'project' },
         sound: true, // Uses default system notification sound
       },

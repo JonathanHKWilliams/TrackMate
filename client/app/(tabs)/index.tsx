@@ -150,9 +150,9 @@ export default function DashboardScreen() {
     if (totalTasks === 0) {
       return (
         <View style={styles.banner}>
-          <Image source={require('../../assets/images/Task.jpg')} style={styles.bannerImage} />
+          <Image source={require('../../assets/images/Taskk.jpg')} style={styles.bannerImage} />
           <Text style={styles.bannerTitle}>All Caught Up!</Text>
-          <Text style={styles.bannerSubtitle}>You have no pending tasks</Text>
+          <Text style={styles.bannerSubtitle}>You have no pending tasks tasks</Text>
         </View>
       );
     }
@@ -160,7 +160,7 @@ export default function DashboardScreen() {
     if (todayCount > 0) {
       return (
         <Animated.View style={[styles.banner, styles.bannerActive, { transform: [{ scale: pulseAnim }] }]}>
-          <Image source={require('../../assets/images/Task.jpg')} style={styles.bannerImage} />
+          <Image source={require('../../assets/images/Taskk.jpg')} style={styles.bannerImage} />
           <Text style={styles.bannerTitle}>{todayCount} Task{todayCount > 1 ? 's' : ''} Due Today</Text>
           <Text style={styles.bannerSubtitle}>Stay focused and get them done</Text>
         </Animated.View>
@@ -169,7 +169,7 @@ export default function DashboardScreen() {
 
     return (
       <View style={styles.banner}>
-        <Image source={require('../../assets/images/Task.jpg')} style={styles.bannerImage} />
+        <Image source={require('../../assets/images/Taskk.jpg')} style={styles.bannerImage} />
         <Text style={styles.bannerTitle}>{totalTasks} Upcoming Task{totalTasks > 1 ? 's' : ''}</Text>
         <Text style={styles.bannerSubtitle}>Plan ahead and stay organized</Text>
       </View>
@@ -269,19 +269,19 @@ const styles = StyleSheet.create({
     paddingTop: 1,
     margin: 1,
     marginHorizontal: 16,
-    marginTop: 16,
+    marginTop: 10,
     marginBottom: 24,
     alignItems: 'center',
     borderWidth: 1,
     borderColor: '#000000ff',
   },
   bannerActive: {
-    borderColor: '#000000',
-    borderWidth: 2,
+    borderColor: '#4a4a4aff',
+    borderWidth: 0,
   },
   bannerImage: {
-    width: 500,
-    height: 200,
+    width: 400,
+    height: 150,
   },
   bannerTitle: {
     fontSize: 20,

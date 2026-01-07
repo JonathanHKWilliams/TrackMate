@@ -178,7 +178,7 @@ export function calculateBudgetProgress(list: BudgetListSummary | BudgetListWith
 export function formatBudgetListForSharing(list: BudgetListWithItems): string {
   const lines: string[] = [];
   
-  lines.push(`📋 ${list.title}`);
+  lines.push(`${list.title}`);
   if (list.description) lines.push(`${list.description}`);
   lines.push('');
   
@@ -192,7 +192,7 @@ export function formatBudgetListForSharing(list: BudgetListWithItems): string {
   
   list.items.forEach((item, index) => {
     const total = item.estimated_price * item.quantity;
-    const priority = item.priority === 'high' ? '⭐' : item.priority === 'low' ? '○' : '●';
+    const priority = item.priority === 'high' ? '' : item.priority === 'low' ? '○' : '●';
     
     lines.push(`${index + 1}. ${priority} ${item.item_name}`);
     if (item.description) lines.push(`   ${item.description}`);
@@ -207,7 +207,7 @@ export function formatBudgetListForSharing(list: BudgetListWithItems): string {
   lines.push(`Remaining Budget: ${list.currency} ${list.remaining_budget.toFixed(2)}`);
   
   if (list.remaining_budget < 0) {
-    lines.push(`⚠️ Over budget by ${list.currency} ${Math.abs(list.remaining_budget).toFixed(2)}`);
+    lines.push(`Over budget by ${list.currency} ${Math.abs(list.remaining_budget).toFixed(2)}`);
   }
   
   return lines.join('\n');
@@ -240,24 +240,23 @@ export function generateBudgetListPDF(list: BudgetListWithItems): string {
       margin: 0 auto;
       background: white;
       box-shadow: 0 10px 40px rgba(0,0,0,0.3);
-      border-radius: 12px;
+<!--       border-radius: 12px; -->
       overflow: hidden;
     }
     .app-header {
-      background: linear-gradient(135deg, #FF8C00 0%, #FF6B00 100%);
-      color: white;
+      background: linear-gradient(135deg, #000000ff 0%, #000000ff 100%);
+      color: #FF8C00;
       padding: 30px;
       text-align: center;
-      border-bottom: 4px solid #FF6B00;
     }
     .app-logo {
-      font-size: 48px;
+      font-size: 58px;
       font-weight: 900;
       margin-bottom: 8px;
       text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
     }
     .app-name {
-      font-size: 24px;
+      font-size: 48px;
       font-weight: 600;
       letter-spacing: 2px;
       margin-bottom: 4px;
@@ -270,10 +269,10 @@ export function generateBudgetListPDF(list: BudgetListWithItems): string {
     .receipt-header {
       background: #f8f9fa;
       padding: 30px;
-      border-bottom: 3px solid #FF8C00;
+      border-bottom: 3px solid #000000ff;
     }
     .receipt-title {
-      font-size: 32px;
+      font-size: 28px;
       font-weight: 700;
       color: #000;
       margin-bottom: 12px;
@@ -295,7 +294,6 @@ export function generateBudgetListPDF(list: BudgetListWithItems): string {
       background: white;
       padding: 15px;
       border-radius: 8px;
-      border-left: 4px solid #FF8C00;
     }
     .info-label {
       font-size: 12px;
@@ -310,7 +308,7 @@ export function generateBudgetListPDF(list: BudgetListWithItems): string {
       color: #000;
     }
     .budget-summary {
-      background: linear-gradient(135deg, #4ECDC4 0%, #44A08D 100%);
+      background: linear-gradient(135deg, #000000ff 0%, #000000ff 100%);
       color: white;
       padding: 25px 30px;
       display: flex;
@@ -329,7 +327,7 @@ export function generateBudgetListPDF(list: BudgetListWithItems): string {
       margin-bottom: 4px;
     }
     .budget-amount {
-      font-size: 24px;
+      font-size: 28px;
       font-weight: 700;
     }
     .items-section {
@@ -341,14 +339,13 @@ export function generateBudgetListPDF(list: BudgetListWithItems): string {
       color: #000;
       margin-bottom: 20px;
       padding-bottom: 10px;
-      border-bottom: 2px solid #FF8C00;
+      // border-bottom: 2px solid #FF8C00;
     }
     .item {
-      background: #f8f9fa;
+      background: #f3f3f3ff;
       padding: 20px;
       margin-bottom: 15px;
       border-radius: 8px;
-      border-left: 4px solid #FF8C00;
       display: flex;
       justify-content: space-between;
       align-items: center;
@@ -382,7 +379,7 @@ export function generateBudgetListPDF(list: BudgetListWithItems): string {
     }
     .item-category {
       display: inline-block;
-      background: #4ECDC4;
+      background: #000000ff;
       color: white;
       padding: 4px 10px;
       border-radius: 12px;
@@ -399,14 +396,14 @@ export function generateBudgetListPDF(list: BudgetListWithItems): string {
     }
     .priority-high { background: #FF4444; color: white; }
     .priority-medium { background: #FF8C00; color: white; }
-    .priority-low { background: #4ECDC4; color: white; }
+    .priority-low { background: #000000ff; color: white; }
     .item-pricing {
       text-align: right;
       min-width: 150px;
     }
     .item-calculation {
       font-size: 14px;
-      color: #666;
+      color: #000000ff;
       margin-bottom: 4px;
     }
     .item-total {
@@ -423,17 +420,17 @@ export function generateBudgetListPDF(list: BudgetListWithItems): string {
       display: flex;
       justify-content: space-between;
       padding: 12px 0;
-      font-size: 18px;
+      font-size: 28px;
     }
     .total-row.grand-total {
       border-top: 2px solid #ddd;
       margin-top: 10px;
       padding-top: 15px;
-      font-size: 24px;
+      font-size: 32px;
       font-weight: 700;
     }
     .total-row.remaining {
-      color: ${progress.isOverBudget ? '#FF4444' : '#4ECDC4'};
+      color: ${progress.isOverBudget ? '#FF4444' : '#000000ff'};
       font-weight: 700;
     }
     .footer {
@@ -469,8 +466,8 @@ export function generateBudgetListPDF(list: BudgetListWithItems): string {
   <div class="receipt">
     <!-- App Header -->
     <div class="app-header">
-      <div class="app-logo">📋</div>
-      <div class="app-name">TRACKMATE</div>
+      <div class="app-logo"></div>
+      <div class="app-name">TRACKMATE BUDGET</div>
       <div class="app-tagline">Budget Planning Made Simple</div>
     </div>
 
@@ -525,7 +522,7 @@ export function generateBudgetListPDF(list: BudgetListWithItems): string {
 
     ${progress.isOverBudget ? `
       <div class="warning-banner">
-        ⚠️ OVER BUDGET BY ${list.currency} ${Math.abs(progress.remaining).toFixed(2)}
+      OVER BUDGET BY ${list.currency} ${Math.abs(progress.remaining).toFixed(2)}
       </div>
     ` : ''}
 

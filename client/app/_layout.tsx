@@ -9,6 +9,7 @@ import { ConnectivityProvider, useConnectivity } from '../contexts/ConnectivityC
 import { ExpenseProvider } from '../contexts/ExpenseContext';
 import { BudgetProvider } from '../contexts/BudgetContext';
 import { BudgetListProvider } from '../contexts/BudgetListContext';
+import { EstimateProvider } from '../contexts/EstimateContext';
 import { ThemeProvider } from '../contexts/ThemeContext';
 import { requestNotificationPermissions } from '../services/notificationService';
 
@@ -161,6 +162,14 @@ function RootLayoutNav() {
           }} 
         />
         <Stack.Screen 
+          name="estimate-hub" 
+          options={{ 
+            headerShown: false,
+            contentStyle: { backgroundColor: '#000' },
+            animation: 'fade',
+          }} 
+        />
+        <Stack.Screen 
           name="+not-found" 
           options={{ 
             contentStyle: { backgroundColor: '#000' },
@@ -181,9 +190,11 @@ export default function RootLayout() {
             <ExpenseProvider>
               <BudgetProvider>
                 <BudgetListProvider>
-                  <AuthGuard>
-                    <RootLayoutNav />
-                  </AuthGuard>
+                  <EstimateProvider>
+                    <AuthGuard>
+                      <RootLayoutNav />
+                    </AuthGuard>
+                  </EstimateProvider>
                 </BudgetListProvider>
               </BudgetProvider>
             </ExpenseProvider>

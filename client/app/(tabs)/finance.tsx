@@ -12,23 +12,29 @@ import { Ionicons } from '@expo/vector-icons';
 import { useExpense } from '../../contexts/ExpenseContext';
 import { useBudget } from '../../contexts/BudgetContext';
 import { useBudgetList } from '../../contexts/BudgetListContext';
+import { useEstimate } from '../../contexts/EstimateContext';
 
 export default function MyHubScreen() {
   const router = useRouter();
   const { expenses } = useExpense();
   const { activeBudgetsWithSpending } = useBudget();
   const { budgetLists } = useBudgetList();
+  const { estimates } = useEstimate();
 
   const getTotalExpenses = () => {
     return expenses.reduce((sum, exp) => sum + Number(exp.amount), 0);
   };
 
+  const getTotalEstimates = () => {
+    return estimates.reduce((sum, est) => sum + Number(est.total_cost || 0), 0);
+  };
+
   const features = [
     {
       id: 'expenses',
-      title: 'Expenses',
+      title: 'Know Your Expenses',
       description: 'Track your spending and manage expenses',
-      imageSource: require('../../assets/images/Expense.png'),
+      icon: 'wallet',
       color: '#FF8C00',
       route: '/expense-hub',
       count: expenses.length,
@@ -36,44 +42,37 @@ export default function MyHubScreen() {
     },
     {
       id: 'budgets',
-      title: 'Budgets',
+      title: 'Create Budgets',
       description: 'Budget tracking and shopping lists',
-      imageSource: require('../../assets/images/Budget.png'),
+      icon: 'calculator',
       color: '#4ECDC4',
       route: '/budget-hub',
       count: activeBudgetsWithSpending.length + budgetLists.length,
       stats: `${activeBudgetsWithSpending.length} tracking, ${budgetLists.length} lists`,
     },
+    {
+      id: 'estimates',
+      title: 'Create Estimates',
+      description: 'Create professional estimates for clients',
+      icon: 'document-text',
+      color: '#4CAF50',
+      route: '/estimate-hub',
+      count: estimates.length,
+      stats: `LRD ${getTotalEstimates().toFixed(2)}`,
+    },
   ];
-
+  
   const renderFeatureCard = (feature: typeof features[0]) => (
     <TouchableOpacity
       key={feature.id}
       style={styles.featureCard}
       onPress={() => router.push(feature.route as any)}
+      activeOpacity={0.7}
     >
-      <View style={[styles.iconContainer, { backgroundColor: feature.color + '20' }]}>
-        <Image 
-          source={feature.imageSource} 
-          style={styles.featureImage}
-          resizeMode="contain"
-        />
+      <View style={[styles.iconContainer, { backgroundColor: feature.color }]}>
+        <Ionicons name={feature.icon as any} size={32} color="#FFF" />
       </View>
-      
-      <View style={styles.featureContent}>
-        <View style={styles.featureHeader}>
-          <Text style={styles.featureTitle}>{feature.title}</Text>
-          {feature.count > 0 && (
-            <View style={[styles.badge, { backgroundColor: feature.color }]}>
-              <Text style={styles.badgeText}>{feature.count}</Text>
-            </View>
-          )}
-        </View>
-        <Text style={styles.featureDescription}>{feature.description}</Text>
-        <Text style={styles.featureStats}>{feature.stats}</Text>
-      </View>
-
-      <Ionicons name="chevron-forward" size={24} color="#B0B0B0" />
+      <Text style={styles.featureTitle}>{feature.title}</Text>
     </TouchableOpacity>
   );
 
@@ -86,18 +85,7 @@ export default function MyHubScreen() {
 
       <ScrollView style={styles.content} contentContainerStyle={styles.contentContainer}>
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Financial Tools</Text>
           {features.map(renderFeatureCard)}
-        </View>
-
-        <View style={styles.infoCard}>
-          <Ionicons name="information-circle" size={24} color="#FF8C00" />
-          <View style={styles.infoContent}>
-            <Text style={styles.infoTitle}>Finance</Text>
-            <Text style={styles.infoText}>
-              Track expenses, set budget limits, and create shopping lists all in one place.
-            </Text>
-          </View>
         </View>
       </ScrollView>
     </View>
@@ -119,7 +107,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 32,
     fontWeight: '700',
-    color: '#FFF',
+    color: '#FF8C00',
     marginBottom: 4,
   },
   subtitle: {
@@ -134,6 +122,9 @@ const styles = StyleSheet.create({
   },
   section: {
     marginBottom: 24,
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 12,
   },
   sectionTitle: {
     fontSize: 18,
@@ -141,84 +132,54 @@ const styles = StyleSheet.create({
     color: '#FFF',
     marginBottom: 16,
   },
-  featureCard: {
+  statsOverview: {
     flexDirection: 'row',
-    alignItems: 'center',
+    gap: 12,
+    marginBottom: 24,
+  },
+  statCard: {
+    flex: 1,
     backgroundColor: '#1A1A1A',
     borderRadius: 0,
     padding: 16,
-    marginBottom: 12,
+    alignItems: 'center',
     borderWidth: 0,
     borderColor: '#2A2A2A',
+  },
+  statValue: {
+    fontSize: 20,
+    fontWeight: '700',
+    color: '#FFF',
+    marginTop: 8,
+    marginBottom: 4,
+  },
+  statLabel: {
+    fontSize: 12,
+    color: '#888',
+    textAlign: 'center',
+  },
+  featureCard: {
+    flexDirection: 'column',
+    alignItems: 'center',
+    backgroundColor: '#1A1A1A',
+    borderRadius: 1,
+    padding: 24,
+    borderWidth: 0,
+    borderColor: '#2A2A2A',
+    flex: 1,
+    minWidth: '40%',
   },
   iconContainer: {
     width: 64,
     height: 64,
-    borderRadius: 12,
+    borderRadius: 16,
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: 16,
-  },
-  featureImage: {
-    width: 70,
-    height: 200,
-  },
-  featureContent: {
-    flex: 1,
-  },
-  featureHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 4,
+    marginBottom: 12,
   },
   featureTitle: {
     fontSize: 18,
     fontWeight: '700',
     color: '#FFF',
-    marginRight: 8,
-  },
-  badge: {
-    paddingHorizontal: 8,
-    paddingVertical: 2,
-    borderRadius: 10,
-  },
-  badgeText: {
-    fontSize: 12,
-    fontWeight: '700',
-    color: '#FFF',
-  },
-  featureDescription: {
-    fontSize: 14,
-    color: '#B0B0B0',
-    marginBottom: 6,
-  },
-  featureStats: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#FF8C00',
-  },
-  infoCard: {
-    flexDirection: 'row',
-    backgroundColor: '#000000ff',
-    borderRadius: 0,
-    borderTopColor: '#747474ff',
-    padding: 16,
-    borderTopWidth: 0,
-    borderColor: '#2A2A2A',
-    gap: 12,
-  },
-  infoContent: {
-    flex: 1,
-  },
-  infoTitle: {
-    fontSize: 16,
-    fontWeight: '700',
-    color: '#FFF',
-    marginBottom: 4,
-  },
-  infoText: {
-    fontSize: 14,
-    color: '#B0B0B0',
-    lineHeight: 20,
   },
 });

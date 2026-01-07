@@ -95,7 +95,7 @@ export default function SignInScreen() {
             <Ionicons name="checkmark-circle" size={80} color="#FF8C00" />
           </View>
           <Text style={styles.appName}>TrackMate</Text>
-          <Text style={styles.tagline}>Your productivity companion</Text>
+          <Text style={styles.tagline}>Your productivity companionn</Text>
         </View>
 
         <View style={styles.formContainer}>

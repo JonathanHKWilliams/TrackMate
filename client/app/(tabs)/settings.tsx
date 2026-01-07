@@ -1,10 +1,14 @@
 import { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Switch, ScrollView, ActivityIndicator, TextInput, Modal } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Switch, ScrollView, ActivityIndicator, TextInput, Modal, Alert, Share, Platform } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../../contexts/AuthContext';
 import { useSettings } from '../../contexts/SettingsContext';
 import { useTheme } from '../../contexts/ThemeContext';
+import { useExpense } from '../../contexts/ExpenseContext';
+import { useBudget } from '../../contexts/BudgetContext';
+import { useBudgetList } from '../../contexts/BudgetListContext';
+import { useEstimate } from '../../contexts/EstimateContext';
 import { getUserProfile, updateUserProfile, uploadAvatar } from '../../services/userProfileService';
 import ImagePicker from '../../components/ImagePicker';
 import CustomAlert from '../../components/CustomAlert';
@@ -15,6 +19,10 @@ export default function SettingsScreen() {
   const { user, signOut } = useAuth();
   const { settings, updateSettings, loading } = useSettings();
   const { theme, setTheme } = useTheme();
+  const { expenses } = useExpense();
+  const { activeBudgetsWithSpending } = useBudget();
+  const { budgetLists } = useBudgetList();
+  const { estimates } = useEstimate();
   const router = useRouter();
   
   const [username, setUsername] = useState('');
@@ -22,6 +30,7 @@ export default function SettingsScreen() {
   const [showEditModal, setShowEditModal] = useState(false);
   const [editUsername, setEditUsername] = useState('');
   const [savingProfile, setSavingProfile] = useState(false);
+  const [exportingData, setExportingData] = useState(false);
   const [alert, setAlert] = useState<{ visible: boolean; title: string; message: string; type: 'success' | 'error' | 'info' | 'warning' }>({ visible: false, title: '', message: '', type: 'info' });
 
   useEffect(() => {
@@ -95,6 +104,72 @@ export default function SettingsScreen() {
       console.error('Error signing out:', error);
       setAlert({ visible: true, title: 'Error', message: 'Failed to sign out', type: 'error' });
     }
+  };
+
+  const handleExportData = async () => {
+    try {
+      setExportingData(true);
+      const exportData = {
+        user: {
+          email: user?.email,
+          username,
+        },
+        expenses,
+        budgets: activeBudgetsWithSpending,
+        budgetLists,
+        estimates,
+        settings,
+        exportDate: new Date().toISOString(),
+      };
+
+      const jsonString = JSON.stringify(exportData, null, 2);
+      const summary = `TrackMate Data Export\n\nExpenses: ${expenses.length}\nBudgets: ${activeBudgetsWithSpending.length}\nBudget Lists: ${budgetLists.length}\nEstimates: ${estimates.length}\n\nExported on: ${new Date().toLocaleDateString()}`;
+
+      await Share.share({
+        message: summary,
+        title: 'TrackMate Data Export',
+      });
+
+      setAlert({ visible: true, title: 'Success', message: 'Data export summary shared successfully', type: 'success' });
+    } catch (error) {
+      console.error('Error exporting data:', error);
+      setAlert({ visible: true, title: 'Error', message: 'Failed to export data', type: 'error' });
+    } finally {
+      setExportingData(false);
+    }
+  };
+
+  const handleBackupToCloud = () => {
+    setAlert({
+      visible: true,
+      title: 'Cloud Backup',
+      message: 'Cloud backup feature coming soon! Your data is automatically synced to Supabase.',
+      type: 'info',
+    });
+  };
+
+  const handleClearData = () => {
+    Alert.alert(
+      'Clear All Data',
+      'Are you sure you want to delete all your data? This action cannot be undone.',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Delete All',
+          style: 'destructive',
+          onPress: confirmClearData,
+        },
+      ]
+    );
+  };
+
+  const confirmClearData = () => {
+    setAlert({
+      visible: true,
+      title: 'Feature Coming Soon',
+      message: 'Clear data functionality will be available in the next update.',
+      type: 'info',
+    });
   };
 
   if (loading || !settings) {
@@ -232,11 +307,127 @@ export default function SettingsScreen() {
               </Text>
             </TouchableOpacity>
           </View>
-          <View style={styles.themePreview}>
-            <Ionicons name="information-circle-outline" size={16} color="#B0B0B0" />
-            <Text style={styles.themePreviewText}>
-              {theme === 'dark' ? 'Dark theme is active' : 'Light theme is active'}
-            </Text>
+        </View>
+      </View>
+
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>Finance Preferences</Text>
+        <View style={styles.card}>
+          <View style={styles.settingRow}>
+            <View style={styles.settingInfo}>
+              <Text style={styles.settingLabel}>Default Currency</Text>
+              <Text style={styles.settingDescription}>
+                Set your preferred currency for expenses and estimates
+              </Text>
+            </View>
+          </View>
+          <View style={styles.optionsRow}>
+            {['LRD', 'USD', 'EUR', 'GBP'].map((currency) => (
+              <TouchableOpacity
+                key={currency}
+                style={[
+                  styles.optionButton,
+                  styles.currencyButton,
+                  settings.default_currency === currency && styles.optionButtonActive,
+                ]}
+                onPress={() => updateSettings({ default_currency: currency as 'LRD' | 'USD' | 'EUR' | 'GBP' })}
+              >
+                <Text
+                  style={[
+                    styles.optionButtonText,
+                    settings.default_currency === currency && styles.optionButtonTextActive,
+                  ]}
+                >
+                  {currency}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+
+          <View style={styles.divider} />
+
+          <View style={styles.settingRow}>
+            <View style={styles.settingInfo}>
+              <Text style={styles.settingLabel}>Show Expense Categories</Text>
+              <Text style={styles.settingDescription}>
+                Display category icons in expense list
+              </Text>
+            </View>
+            <Switch
+              value={settings.show_expense_categories}
+              onValueChange={(value) => updateSettings({ show_expense_categories: value })}
+              trackColor={{ false: '#2A2A2A', true: '#FF8C00' }}
+              thumbColor={settings.show_expense_categories ? '#FFF' : '#B0B0B0'}
+            />
+          </View>
+
+          <View style={styles.divider} />
+
+          <View style={styles.settingRow}>
+            <View style={styles.settingInfo}>
+              <Text style={styles.settingLabel}>Auto-Generate Estimate Numbers</Text>
+              <Text style={styles.settingDescription}>
+                Automatically create sequential estimate numbers
+              </Text>
+            </View>
+            <Switch
+              value={settings.auto_generate_estimate_numbers}
+              onValueChange={(value) => updateSettings({ auto_generate_estimate_numbers: value })}
+              trackColor={{ false: '#2A2A2A', true: '#FF8C00' }}
+              thumbColor={settings.auto_generate_estimate_numbers ? '#FFF' : '#B0B0B0'}
+            />
+          </View>
+        </View>
+      </View>
+
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>Budget Preferences</Text>
+        <View style={styles.card}>
+          <View style={styles.settingRow}>
+            <View style={styles.settingInfo}>
+              <Text style={styles.settingLabel}>Budget Alerts</Text>
+              <Text style={styles.settingDescription}>
+                Get notified when approaching budget limits
+              </Text>
+            </View>
+            <Switch
+              value={settings.budget_alerts_enabled}
+              onValueChange={(value) => updateSettings({ budget_alerts_enabled: value })}
+              trackColor={{ false: '#2A2A2A', true: '#FF8C00' }}
+              thumbColor={settings.budget_alerts_enabled ? '#FFF' : '#B0B0B0'}
+            />
+          </View>
+
+          <View style={styles.divider} />
+
+          <View style={styles.settingRow}>
+            <View style={styles.settingInfo}>
+              <Text style={styles.settingLabel}>Alert Threshold</Text>
+              <Text style={styles.settingDescription}>
+                Notify when spending reaches this percentage
+              </Text>
+            </View>
+          </View>
+          <View style={styles.optionsRow}>
+            {[75, 80, 90, 95].map((threshold) => (
+              <TouchableOpacity
+                key={threshold}
+                style={[
+                  styles.optionButton,
+                  settings.budget_alert_threshold === threshold && styles.optionButtonActive,
+                ]}
+                onPress={() => updateSettings({ budget_alert_threshold: threshold })}
+              >
+                <Text
+                  style={[
+                    styles.optionButtonText,
+                    settings.budget_alert_threshold === threshold && styles.optionButtonTextActive,
+                  ]}
+                >
+                  {threshold}%
+                </Text>
+              </TouchableOpacity>
+            ))}
           </View>
         </View>
       </View>
@@ -340,6 +531,118 @@ export default function SettingsScreen() {
       </View>
 
       <View style={styles.section}>
+        <Text style={styles.sectionTitle}>Data Management</Text>
+        <View style={styles.card}>
+          <TouchableOpacity 
+            style={styles.menuItem}
+            onPress={handleExportData}
+            disabled={exportingData}
+          >
+            <View style={styles.menuItemLeft}>
+              {exportingData ? (
+                <ActivityIndicator size="small" color="#4CAF50" />
+              ) : (
+                <Ionicons name="download-outline" size={22} color="#4CAF50" />
+              )}
+              <View>
+                <Text style={styles.menuItemText}>
+                  {exportingData ? 'Exporting...' : 'Export Data'}
+                </Text>
+                <Text style={styles.menuItemSubtext}>Download all your data as JSON</Text>
+              </View>
+            </View>
+            <Ionicons name="chevron-forward" size={20} color="#B0B0B0" />
+          </TouchableOpacity>
+          
+          <View style={styles.divider} />
+          
+          <TouchableOpacity 
+            style={styles.menuItem}
+            onPress={handleBackupToCloud}
+          >
+            <View style={styles.menuItemLeft}>
+              <Ionicons name="cloud-upload-outline" size={22} color="#4ECDC4" />
+              <View>
+                <Text style={styles.menuItemText}>Backup to Cloud</Text>
+                <Text style={styles.menuItemSubtext}>Sync data to cloud storage</Text>
+              </View>
+            </View>
+            <Ionicons name="chevron-forward" size={20} color="#B0B0B0" />
+          </TouchableOpacity>
+          
+          <View style={styles.divider} />
+          
+          <TouchableOpacity 
+            style={styles.menuItem}
+            onPress={handleClearData}
+          >
+            <View style={styles.menuItemLeft}>
+              <Ionicons name="trash-outline" size={22} color="#FF4444" />
+              <View>
+                <Text style={[styles.menuItemText, { color: '#FF4444' }]}>Clear All Data</Text>
+                <Text style={styles.menuItemSubtext}>Remove all local data</Text>
+              </View>
+            </View>
+            <Ionicons name="chevron-forward" size={20} color="#B0B0B0" />
+          </TouchableOpacity>
+        </View>
+      </View>
+
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>Display Preferences</Text>
+        <View style={styles.card}>
+          <View style={styles.settingRow}>
+            <View style={styles.settingInfo}>
+              <Text style={styles.settingLabel}>Compact View</Text>
+              <Text style={styles.settingDescription}>
+                Show more items with smaller spacing
+              </Text>
+            </View>
+            <Switch
+              value={settings.compact_view}
+              onValueChange={(value) => updateSettings({ compact_view: value })}
+              trackColor={{ false: '#2A2A2A', true: '#FF8C00' }}
+              thumbColor={settings.compact_view ? '#FFF' : '#B0B0B0'}
+            />
+          </View>
+
+          <View style={styles.divider} />
+
+          <View style={styles.settingRow}>
+            <View style={styles.settingInfo}>
+              <Text style={styles.settingLabel}>Show Icons</Text>
+              <Text style={styles.settingDescription}>
+                Display icons throughout the app
+              </Text>
+            </View>
+            <Switch
+              value={settings.show_icons}
+              onValueChange={(value) => updateSettings({ show_icons: value })}
+              trackColor={{ false: '#2A2A2A', true: '#FF8C00' }}
+              thumbColor={settings.show_icons ? '#FFF' : '#B0B0B0'}
+            />
+          </View>
+
+          <View style={styles.divider} />
+
+          <View style={styles.settingRow}>
+            <View style={styles.settingInfo}>
+              <Text style={styles.settingLabel}>Animations</Text>
+              <Text style={styles.settingDescription}>
+                Enable smooth transitions and animations
+              </Text>
+            </View>
+            <Switch
+              value={settings.animations_enabled}
+              onValueChange={(value) => updateSettings({ animations_enabled: value })}
+              trackColor={{ false: '#2A2A2A', true: '#FF8C00' }}
+              thumbColor={settings.animations_enabled ? '#FFF' : '#B0B0B0'}
+            />
+          </View>
+        </View>
+      </View>
+
+      <View style={styles.section}>
         <Text style={styles.sectionTitle}>Help & Support</Text>
         <View style={styles.card}>
           <TouchableOpacity 
@@ -420,7 +723,7 @@ export default function SettingsScreen() {
           <View style={styles.divider} />
           <View style={styles.infoRow}>
             <Text style={styles.label}>Versionn</Text>
-            <Text style={styles.value}>1.0.0</Text>
+            <Text style={styles.value}>2.1.0</Text>
           </View>
           <View style={styles.divider} />
           <View style={styles.infoRow}>
@@ -428,7 +731,7 @@ export default function SettingsScreen() {
             <Text style={styles.value}>2025.12</Text>
           </View>
           <View style={styles.infoRow}>
-            <Text style={styles.label}>Devv</Text>
+            <Text style={styles.label}>Dev</Text>
             <Text style={styles.value}>williamslight91@gmail.com</Text>
           </View>
         </View>
@@ -532,7 +835,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 32,
     fontWeight: '700',
-    color: '#FFF',
+    color: '#FF8C00',
   },
   section: {
     marginBottom: 24,
@@ -549,8 +852,8 @@ const styles = StyleSheet.create({
     backgroundColor: '#000000ff',
     borderRadius: 12,
     padding: 16,
-    borderWidth: 1,
-    borderColor: '#030303ff',
+    borderWidth: 0,
+    borderColor: '#2A2A2A',
   },
   label: {
     fontSize: 14,
@@ -629,9 +932,15 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 10,
     borderRadius: 8,
-    borderWidth: 1,
-    borderColor: '#2f2f2fff',
-    backgroundColor: '#000000ff',
+    borderWidth: 0,
+    borderColor: '#2A2A2A',
+    backgroundColor: '#000',
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  currencyButton: {
+    flex: 1,
+    justifyContent: 'center',
   },
   optionButtonActive: {
     backgroundColor: '#FF8C00',
@@ -662,18 +971,10 @@ const styles = StyleSheet.create({
     color: '#FFF',
     fontWeight: '500',
   },
-  themePreview: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-    marginTop: 12,
-    paddingTop: 12,
-    borderTopWidth: 1,
-    borderTopColor: '#2A2A2A',
-  },
-  themePreviewText: {
+  menuItemSubtext: {
     fontSize: 13,
     color: '#B0B0B0',
+    marginTop: 2,
   },
   profileRow: {
     flexDirection: 'row',
@@ -745,7 +1046,7 @@ const styles = StyleSheet.create({
   },
   modalInput: {
     backgroundColor: '#000',
-    borderWidth: 1,
+    borderWidth: 0,
     borderRadius: 8,
     padding: 12,
     fontSize: 16,
