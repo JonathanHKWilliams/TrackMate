@@ -83,7 +83,7 @@ export default function ImagePicker({ currentImage, onImageSelected, size = 100,
       {currentImage ? (
         <Image source={{ uri: currentImage }} style={styles.image} />
       ) : (
-        <Image source={require('../assets/images/User-image.png')} style={styles.image} />
+        <Image source={require('../assets/images/User_image.png')} style={styles.image} />
       )}
       
       <View style={styles.editBadge}>
