@@ -116,7 +116,7 @@ export default function NotesScreen() {
       if (user) {
         loadNotes();
       }
-    }, [user])
+    }, [user, loadNotes])
   );
 
   const checkPassword = async () => {

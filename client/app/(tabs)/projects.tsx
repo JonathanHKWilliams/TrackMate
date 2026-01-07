@@ -45,7 +45,7 @@ export default function ProjectsScreen() {
       if (user) {
         loadProjects();
       }
-    }, [user])
+    }, [user, loadProjects])
   );
 
   const filteredProjects = projects.filter(p => {

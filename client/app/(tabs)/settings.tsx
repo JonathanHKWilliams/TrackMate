@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Switch, ScrollView, ActivityIndicator, TextInput, Modal, Alert, Share, Platform } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Switch, ScrollView, ActivityIndicator, TextInput, Modal, Alert, Share } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../../contexts/AuthContext';
@@ -109,20 +109,7 @@ export default function SettingsScreen() {
   const handleExportData = async () => {
     try {
       setExportingData(true);
-      const exportData = {
-        user: {
-          email: user?.email,
-          username,
-        },
-        expenses,
-        budgets: activeBudgetsWithSpending,
-        budgetLists,
-        estimates,
-        settings,
-        exportDate: new Date().toISOString(),
-      };
-
-      const jsonString = JSON.stringify(exportData, null, 2);
+      
       const summary = `TrackMate Data Export\n\nExpenses: ${expenses.length}\nBudgets: ${activeBudgetsWithSpending.length}\nBudget Lists: ${budgetLists.length}\nEstimates: ${estimates.length}\n\nExported on: ${new Date().toLocaleDateString()}`;
 
       await Share.share({

@@ -19,7 +19,7 @@ import { getCategoryIcon, CURRENCIES, getCurrencySymbol } from '../../constants/
 
 export default function NewExpenseScreen() {
   const router = useRouter();
-  const { createExpense, categories, tags } = useExpense();
+  const { createExpense, categories } = useExpense();
   
   const [title, setTitle] = useState('');
   const [amount, setAmount] = useState('');
@@ -29,8 +29,7 @@ export default function NewExpenseScreen() {
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('cash');
   const [description, setDescription] = useState('');
   const [merchant, setMerchant] = useState('');
-  const [selectedTagIds, setSelectedTagIds] = useState<string[]>([]);
-  const [loading, setLoading] = useState(false);
+    const [loading, setLoading] = useState(false);
   const [currency, setCurrency] = useState('LRD');
   const [showCurrencyPicker, setShowCurrencyPicker] = useState(false);
 
@@ -67,7 +66,7 @@ export default function NewExpenseScreen() {
         payment_method: paymentMethod,
         description: description.trim() || undefined,
         merchant: merchant.trim() || undefined,
-        tag_ids: selectedTagIds,
+        tag_ids: [],
       });
 
       router.back();
@@ -79,12 +78,7 @@ export default function NewExpenseScreen() {
     }
   };
 
-  const toggleTag = (tagId: string) => {
-    setSelectedTagIds((prev) =>
-      prev.includes(tagId) ? prev.filter((id) => id !== tagId) : [...prev, tagId]
-    );
-  };
-
+  
   return (
     <View style={styles.container}>
       <View style={styles.header}>

@@ -22,7 +22,7 @@ export default function BudgetListScreen() {
   useFocusEffect(
     useCallback(() => {
       refreshBudgetLists();
-    }, [])
+    }, [refreshBudgetLists])
   );
 
   const handleRefresh = async () => {

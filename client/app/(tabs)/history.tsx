@@ -22,7 +22,7 @@ export default function HistoryScreen() {
   const [refreshing, setRefreshing] = useState(false);
   const [activeTab, setActiveTab] = useState<'completed' | 'shared'>('completed');
 
-  const loadTasks = async () => {
+  const loadTasks = useCallback(async () => {
     if (!user) return;
     try {
       const tasksByStatus = await getTasksByStatus(user.id);
@@ -36,7 +36,7 @@ export default function HistoryScreen() {
       setLoading(false);
       setRefreshing(false);
     }
-  };
+  }, [user]);
 
   useEffect(() => {
     loadTasks();
@@ -48,7 +48,7 @@ export default function HistoryScreen() {
       if (user) {
         loadTasks();
       }
-    }, [user])
+    }, [user, loadTasks])
   );
 
   const handleUncomplete = async (taskId: string) => {

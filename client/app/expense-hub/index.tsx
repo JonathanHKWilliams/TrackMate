@@ -34,7 +34,7 @@ export default function ExpenseHubScreen() {
   useFocusEffect(
     useCallback(() => {
       refreshExpenses();
-    }, [])
+    }, [refreshExpenses])
   );
 
   const getTotalSpending = () => {

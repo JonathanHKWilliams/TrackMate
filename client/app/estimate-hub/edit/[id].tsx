@@ -75,11 +75,7 @@ export default function EditEstimateScreen() {
     currency: 'LRD',
   });
 
-  useEffect(() => {
-    loadEstimate();
-  }, [id]);
-
-  const loadEstimate = async () => {
+  const loadEstimate = React.useCallback(async () => {
     try {
       setLoading(true);
       const estimate = await getEstimateById(id as string);
@@ -122,7 +118,11 @@ export default function EditEstimateScreen() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [id, getEstimateById, router]);
+
+  useEffect(() => {
+    loadEstimate();
+  }, [loadEstimate]);
 
   const validateStep = (step: number): boolean => {
     switch (step) {

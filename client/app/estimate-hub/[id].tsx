@@ -23,23 +23,23 @@ export default function EstimateDetailScreen() {
   const [loading, setLoading] = useState(true);
   const [generatingPDF, setGeneratingPDF] = useState(false);
 
-  useEffect(() => {
-    loadEstimate();
-  }, [id]);
-
-  useFocusEffect(
-    React.useCallback(() => {
-      loadEstimate();
-    }, [id])
-  );
-
-  const loadEstimate = () => {
+  const loadEstimate = React.useCallback(() => {
     const estimateData = getEstimateById(id);
     if (estimateData) {
       setEstimate(estimateData);
     }
     setLoading(false);
-  };
+  }, [id, getEstimateById]);
+
+  useEffect(() => {
+    loadEstimate();
+  }, [loadEstimate]);
+
+  useFocusEffect(
+    React.useCallback(() => {
+      loadEstimate();
+    }, [loadEstimate])
+  );
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -63,7 +63,7 @@ export default function EstimateDetailScreen() {
       await updateEstimate(estimate.id, { status: newStatus });
       setEstimate(prev => prev ? { ...prev, status: newStatus } : null);
       Alert.alert('Success', `Estimate marked as ${getStatusText(newStatus)}`);
-    } catch (error) {
+    } catch {
       Alert.alert('Error', 'Failed to update status');
     }
   };
@@ -82,7 +82,7 @@ export default function EstimateDetailScreen() {
             try {
               await deleteEstimate(estimate.id);
               router.back();
-            } catch (error) {
+            } catch {
               Alert.alert('Error', 'Failed to delete estimate');
             }
           },

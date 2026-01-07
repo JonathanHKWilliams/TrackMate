@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useCallback } from 'react';
 import {
   View,
   Text,
@@ -68,7 +68,7 @@ export default function BudgetListDetailScreen() {
   useFocusEffect(
     useCallback(() => {
       loadBudgetList();
-    }, [id])
+    }, [loadBudgetList])
   );
 
   const resetForm = () => {

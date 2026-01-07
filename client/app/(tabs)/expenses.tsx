@@ -38,7 +38,7 @@ export default function ExpensesScreen() {
     useCallback(() => {
       refreshExpenses();
       refreshBudgets();
-    }, [])
+    }, [refreshExpenses, refreshBudgets])
   );
 
   const getTotalSpending = () => {

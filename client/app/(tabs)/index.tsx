@@ -30,7 +30,7 @@ export default function DashboardScreen() {
   const [refreshing, setRefreshing] = useState(false);
   const pulseAnim = useRef(new Animated.Value(1)).current;
 
-  const loadTasks = async () => {
+  const loadTasks = useCallback(async () => {
     if (!user) return;
     try {
       const tasksByStatus = await getTasksByStatus(user.id);
@@ -41,7 +41,7 @@ export default function DashboardScreen() {
       setLoading(false);
       setRefreshing(false);
     }
-  };
+  }, [user]);
 
   useEffect(() => {
     loadTasks();
@@ -53,7 +53,7 @@ export default function DashboardScreen() {
       if (user) {
         loadTasks();
       }
-    }, [user])
+    }, [user, loadTasks])
   );
 
   useEffect(() => {

@@ -11,7 +11,7 @@ interface ImagePickerProps {
 }
 
 export default function ImagePicker({ currentImage, onImageSelected, size = 100, disabled = false }: ImagePickerProps) {
-  const [loading, setLoading] = useState(false);
+  const [loading] = useState(false);
 
   const pickImage = async () => {
     try {
