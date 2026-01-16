@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react';
 import { useAuth } from './AuthContext';
 import { getBudgetLists } from '../services/budgetListService';
 import { BudgetListSummary } from '../types/budgetList';
@@ -16,7 +16,7 @@ export function BudgetListProvider({ children }: { children: ReactNode }) {
   const [budgetLists, setBudgetLists] = useState<BudgetListSummary[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const loadBudgetLists = async () => {
+  const loadBudgetLists = useCallback(async () => {
     if (!user) {
       setBudgetLists([]);
       setLoading(false);
@@ -32,15 +32,15 @@ export function BudgetListProvider({ children }: { children: ReactNode }) {
     } finally {
       setLoading(false);
     }
-  };
+  }, [user]);
 
   useEffect(() => {
     loadBudgetLists();
-  }, [user]);
+  }, [loadBudgetLists]);
 
-  const refreshBudgetLists = async () => {
+  const refreshBudgetLists = useCallback(async () => {
     await loadBudgetLists();
-  };
+  }, [loadBudgetLists]);
 
   return (
     <BudgetListContext.Provider value={{ budgetLists, loading, refreshBudgetLists }}>
